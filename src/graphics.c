@@ -27,8 +27,6 @@ GraphicsEngine *initialise_graphics()
   if (!graphics->window)
   {
     printf("Window init failed: %s\n", SDL_GetError());
-    IMG_Quit();
-    SDL_Quit();
     return NULL;
   }
 
@@ -36,9 +34,6 @@ GraphicsEngine *initialise_graphics()
   if (!graphics->renderer)
   {
     printf("Renderer init failed: %s\n", SDL_GetError());
-    SDL_DestroyWindow(graphics->window);
-    IMG_Quit();
-    SDL_Quit();
     return NULL;
   }
 
@@ -46,19 +41,11 @@ GraphicsEngine *initialise_graphics()
   if (!graphics->spritesheet)
   {
     printf("Spritesheet init failed: %s\n", IMG_GetError());
-    SDL_DestroyRenderer(graphics->renderer);
-    SDL_DestroyWindow(graphics->window);
-    IMG_Quit();
-    SDL_Quit();
     return NULL;
   }
 
   if (SDL_RenderSetScale(graphics->renderer, RENDER_SCALE, RENDER_SCALE) < 0) {
     printf("Setting render scale failed: %s\n", IMG_GetError());
-    SDL_DestroyRenderer(graphics->renderer);
-    SDL_DestroyWindow(graphics->window);
-    IMG_Quit();
-    SDL_Quit();
     return NULL;
   }
 
@@ -69,9 +56,15 @@ GraphicsEngine *initialise_graphics()
 
 void cleanup_graphics(GraphicsEngine *ge)
 {
-  SDL_DestroyTexture(ge->spritesheet);
-  SDL_DestroyRenderer(ge->renderer);
-  SDL_DestroyWindow(ge->window);
+  if (ge->spritesheet) {
+    SDL_DestroyTexture(ge->spritesheet);
+  }
+  if (ge->renderer) {
+      SDL_DestroyRenderer(ge->renderer);
+  }
+  if (ge->window) {
+      SDL_DestroyWindow(ge->window);
+  }
   IMG_Quit();
   SDL_Quit();
 

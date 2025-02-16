@@ -1,5 +1,15 @@
 #include "main.h"
 
+void cleanup_game(Game *game)
+{
+  if (game->graphics)
+  {
+    cleanup_graphics(game->graphics);
+  }
+
+  free(game);
+}
+
 int main(int argc, char **argv)
 {
   Game *game = (Game *)malloc(sizeof(Game));
@@ -11,6 +21,7 @@ int main(int argc, char **argv)
   if (!game->graphics)
   {
     printf("%s\n", "Error initialising graphics engine");
+    cleanup_game(game);
     return 1;
   }
 
@@ -27,9 +38,7 @@ int main(int argc, char **argv)
     game->graphics->render_frame(game->graphics);
   }
 
-  cleanup_graphics(game->graphics);
-
-  free(game);
+  cleanup_game(game);
 
   return 0;
 }
