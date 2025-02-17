@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="1">
+ <editorsettings>
+  <export target="Level1.csv" format="csv"/>
+ </editorsettings>
+ <tileset firstgid="1" name="spritesheet" tilewidth="16" tileheight="16" tilecount="1078" columns="49">
+  <image source="spritesheet.png" width="784" height="352"/>
+ </tileset>
+ <layer id="1" name="Background" width="32" height="18">
+  <data encoding="base64" compression="zlib">
+   eJzNVkEOgDAIY+P/P/agB08NIAxwOzQs6ErtarJBROPBfCuClT5C27+KCj6v9t3cVd4x1FMhfW9Hfv6Yo+XBO6dLz+pZePVoGZP6Hk42OKM+XU3e7Dq/iI4Ja6la/Np/E9HEhb5k8/j1zJqj+YZ+eTlPyRN6EpmZvSd06M+8fwNznQOG
+  </data>
+ </layer>
+ <objectgroup id="3" name="Objects"/>
+ <layer id="2" name="Foreground" width="32" height="18">
+  <data encoding="base64" compression="zlib">
+   eJxjYKA+OAfBC2hgNLH2J5xnYDiAT00mDn4wMwNDHRMmBomjA2EgFkHCokhyZ9HUPgKa8QqIXwPxGybc7gLZJQi0SwgJC0PdBALrgfQGKNsFiFcA8VMgfyWQdiNgvzTQHBkglsXiF2T7nYDyzkjYBcl+ZOCCxsdlP3pY4wMge4qB9pUg4VIk+zcyQcIABEqB+CZU3y0gLsdhPyGA7D4/aHzXo9Eg8Qd44g0d4LPfkhG3HMguf6id7syofGIBNP8dQBd/SIIZxABc8QrzOz5/DiWwgcRwg/kfV/gQEl+Pxz5iwpSUtE8IPGAi3//kgo0UplNq+p8YcA5iZwIMY8t7tATo/iWlvEUHs4B4JhJG5hNrP70BKfafZYDH1QEgXgAAjm9I6w==
+  </data>
+ </layer>
+</map>
