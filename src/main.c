@@ -9,6 +9,11 @@ void cleanup_game(Game *game)
     cleanup_graphics(game->graphics);
   }
 
+  if (game->level)
+  {
+    cleanup_level(game->level);
+  }
+
   free(game);
 }
 
@@ -22,11 +27,19 @@ int main(int argc, char **argv)
 
   if (!game->graphics)
   {
-    printf("%s\n", "Error initialising graphics engine");
+    fprintf(stderr, "%s\n", "Error initialising graphics engine");
     cleanup_game(game);
     return 1;
   }
 
+  game->level = load_level("./assets/Levels/Level1");
+
+  if (!game->level)
+  {
+    fprintf(stderr, "%s\n", "Error loading level");
+    cleanup_game(game);
+    return 1;
+  }
 
   while (running)
   {
@@ -38,7 +51,7 @@ int main(int argc, char **argv)
       }
     }
 
-    game->graphics->render_frame(game->graphics);
+    game->graphics->render_frame(game);
   }
 
   cleanup_game(game);
