@@ -18,6 +18,8 @@ typedef struct
 {
   int spriteX;
   int spriteY;
+  double angle;
+  int flip;
 
 } Sprite;
 

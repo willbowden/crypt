@@ -88,12 +88,12 @@ void render_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   destRect.w = SPRITE_WIDTH;
   destRect.h = SPRITE_HEIGHT;
 
-  SDL_RenderCopy(ge->renderer, ge->spritesheet, &spriteClip, &destRect);
+  SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
 void render_frame(GraphicsEngine *ge)
 {
-  Sprite sprite = {24, 0};
+  Sprite sprite = {24, 0, 90.0, SDL_FLIP_NONE};
 
   /* Clear screen */
   SDL_SetRenderDrawColor(ge->renderer, 0, 0, 0, 255);
