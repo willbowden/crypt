@@ -48,8 +48,6 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
-  graphics->render_frame = &render_frame;
-
   return graphics;
 }
 
@@ -73,7 +71,13 @@ void cleanup_graphics(GraphicsEngine *ge)
   free(ge);
 }
 
-void render_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
+void clear_screen(GraphicsEngine *ge)
+{
+  SDL_SetRenderDrawColor(ge->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(ge->renderer);
+}
+
+void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
 {
   SDL_Rect spriteClip;
   SDL_Rect destRect;
@@ -91,7 +95,7 @@ void render_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
-void render_background(GraphicsEngine *ge, Sprite ***background)
+void draw_background(GraphicsEngine *ge, Sprite ***background)
 {
   int x, y;
 
@@ -101,27 +105,18 @@ void render_background(GraphicsEngine *ge, Sprite ***background)
     {
       if (background[y][x])
       {
-        render_sprite(ge, background[y][x], x, y);
+        draw_sprite(ge, background[y][x], x, y);
       }
     }
   }
 }
 
-void render_level(GraphicsEngine *ge, Level *level)
+void draw_level(GraphicsEngine *ge, Level *level)
 {
-  render_background(ge, level->background);
+  draw_background(ge, level->background);
 }
 
-void render_frame(Game *g)
+void present_frame(GraphicsEngine *ge)
 {
-  /* Clear screen */
-  SDL_SetRenderDrawColor(g->graphics->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(g->graphics->renderer);
-
-  /* Draw frame */
-  
-  render_level(g->graphics, g->level);
-
-  /* Display frame */
-  SDL_RenderPresent(g->graphics->renderer);
+  SDL_RenderPresent(ge->renderer);
 }

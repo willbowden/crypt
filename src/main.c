@@ -51,7 +51,10 @@ int main(int argc, char **argv)
       }
     }
 
-    game->graphics->render_frame(game);
+    /* Render loop, can put steps in here for UI or player movement*/
+    clear_screen(game->graphics);
+    draw_level(game->graphics, game->level);
+    present_frame(game->graphics);
   }
 
   cleanup_game(game);
