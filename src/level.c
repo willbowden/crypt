@@ -87,6 +87,7 @@ int load_background(Level *level, char *levelName)
         if (successfulReads < WINDOW_HEIGHT_SPRITES * WINDOW_WIDTH_SPRITES)
         {
           fprintf(stderr, "Error reading background tile at location x:%d y%d:\n", x, y);
+          fclose(file);
           return -1;
         }
       }
@@ -110,7 +111,8 @@ int load_background(Level *level, char *levelName)
       level->background[y][x] = newSprite;
     }
   }
-
+  
+  fclose(file);
   return 0;
 }
 
