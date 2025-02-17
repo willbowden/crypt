@@ -59,6 +59,9 @@ Level *create_empty_level()
 
 int load_background(Level *level, char *levelName)
 {
+  /**
+   * TODO: HANDLE ROTATION AND FLIPPING
+   */
   char suffix[] = "_Background.csv";
   FILE *file = NULL;
   int tileNo = -1;
