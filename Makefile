@@ -1,5 +1,5 @@
 COMPILER = gcc
-OPTIONS = -Wall -Werror -pedantic -ansi -fsanitize=address -lSDL2 -lSDL2_image -MMD -MP -I $(INCLUDE)
+OPTIONS = -Wall -Werror -ansi -pedantic -MMD -MP -I $(INCLUDE)
 COMPILE = $(COMPILER) $(OPTIONS)
 
 SRC = src
@@ -18,7 +18,7 @@ $(shell mkdir -p $(BUILD) $(BIN))
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(COMPILE) $(OBJECTS) -o $(TARGET)
+	$(COMPILE) $(OBJECTS) -o $(TARGET) -lSDL2 -lSDL2_image
 
 $(BUILD)/%.o: $(SRC)/%.c
 	$(COMPILE) -c $< -o $@

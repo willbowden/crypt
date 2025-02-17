@@ -6,12 +6,12 @@
 #define WINDOW_WIDTH_SPRITES 32
 #define RENDER_SCALE 3.0
 
-typedef struct Graphics
+typedef struct GraphicsEngine
 {
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *spritesheet;
-  void (*render_frame)(struct Graphics *);
+  void (*render_frame)(struct GraphicsEngine *);
 } GraphicsEngine;
 
 typedef struct

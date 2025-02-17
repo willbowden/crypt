@@ -2,6 +2,8 @@
 
 void cleanup_game(Game *game)
 {
+  if (!game) return;
+
   if (game->graphics)
   {
     cleanup_graphics(game->graphics);
@@ -12,10 +14,10 @@ void cleanup_game(Game *game)
 
 int main(int argc, char **argv)
 {
-  Game *game = (Game *)malloc(sizeof(Game));
+  Game *game = (Game *)calloc(1, sizeof(Game));
   int running = 1;
   SDL_Event e;
-
+  
   game->graphics = initialise_graphics();
 
   if (!game->graphics)
@@ -24,6 +26,7 @@ int main(int argc, char **argv)
     cleanup_game(game);
     return 1;
   }
+
 
   while (running)
   {

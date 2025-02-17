@@ -4,7 +4,7 @@
 
 GraphicsEngine *initialise_graphics()
 {
-  GraphicsEngine *graphics = (GraphicsEngine *)malloc(sizeof(GraphicsEngine));
+  GraphicsEngine *graphics = (GraphicsEngine *)calloc(1, sizeof(GraphicsEngine));
   int screenWidth, screenHeight;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -16,7 +16,6 @@ GraphicsEngine *initialise_graphics()
   if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
   {
     printf("SDL_image init failed: %s\n", IMG_GetError());
-    SDL_Quit();
     return NULL;
   }
 
@@ -56,6 +55,8 @@ GraphicsEngine *initialise_graphics()
 
 void cleanup_graphics(GraphicsEngine *ge)
 {
+  if (!ge) return;
+
   if (ge->spritesheet) {
     SDL_DestroyTexture(ge->spritesheet);
   }
@@ -65,6 +66,7 @@ void cleanup_graphics(GraphicsEngine *ge)
   if (ge->window) {
       SDL_DestroyWindow(ge->window);
   }
+
   IMG_Quit();
   SDL_Quit();
 
