@@ -1,53 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <entity_system.h>
+#include "main.h"
 
 int main(int argc, char **argv) {
     return 0;
 }
 
-void create_entity(Entity *entity, int worldX, int worldY, Sprite *sprite) {
-    entity = malloc(sizeof(Entity));
-    entity->sprite = sprite;
-    entity->worldX = worldX;
-    entity->worldY = worldY;
-}
-
-void create_player(Player *player, Entity base, int health, bool turn) {
-    player = malloc(sizeof(Player));
-    player->base = base;
+Player * create_player(Sprite *sprite, int health, bool turn) {
+    Player player = malloc(sizeof(Player));
+    player->sprite = sprite;
     player->health = health;
     player->turn = turn;
 }
 
-void create_enemy(Enemy *enemy, Entity base, int health, bool turn) {
-    enemy = malloc(sizeof(Enemy));
-    enemy->base = base;
+Enemy * create_enemy(Sprite *sprite, int health, bool turn) {
+    Enemy enemy = malloc(sizeof(Enemy));
     enemy->health = health;
+    enemy->sprite = sprite;
     enemy->turn = turn;
 }
 
-void create_interactable(Interactable *interactable, Entity base, bool passable) {
-    interactable = malloc(sizeof(Interactable));
-    interactable->base = base;
+Interactable * create_interactable(Sprite *sprite, bool passable) {
+    Interactable interactable = malloc(sizeof(Interactable));
     interactable->passable = passable;
-}
-
-void free_entity(Entity *entity) {
-    free(entity->sprite);
-    free(entity);
+    return interactable;
 }
 
 void free_player(Player *player) {
-    free(player->base);
+    free(player->sprite);
     free(player);
 }
 
 void free_enemy(Enemy *enemy) {
-    free(enemy->base);
+    free(enemy->sprite);
     free(enemy);
 }
 
 void free_interactable(Interactable *interactable) {
+    free(interactable->sprite);
     free(interactable);
 }

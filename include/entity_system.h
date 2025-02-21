@@ -1,34 +1,39 @@
-#include <graphics.h>
+#include <stdbool.h>
+
+enum EntityType {
+    ENEMY, 
+    PLAYER, 
+    INTERACTABLE    
+}
+
+enum EnemyType {
+    OGRE,
+    BRUH
+}
 
 typedef struct {
+    Sprite *sprite
     int worldX;
     int worldY;
-    Sprite *sprite;
-} Entity;
-
-typedef struct {
-    Entity base;
     int health;
     bool turn;
 } Player;
 
 typedef struct {
-    Entity base;
+    Sprite *sprite
     bool passable;
 } Interactable;
 
 typedef struct {
-    Entity base;
+    Sprite *sprite
     bool turn; /* boolean to decide whether its the enemies' turn */
     int health;
 } Enemy;
 
-void create_entity(Entity *entity, int worldX, int worldY, Sprite *sprite);
-void create_player(Player *player, Entity base, int health, bool turn);
-void create_enemy(Enemy *enemy, Entity base, int health, bool turn);
-void create_interactable(Interactable *interactable, bool passable);
+Player * create_player(Sprite *sprite, int health, bool turn);
+Enemy * create_enemy(Sprite *sprite, int health, bool turn);
+Interactable * create_interactable(Sprite *sprite, bool passable);
 
-void free_entity(Entity *entity);
 void free_player(Player *player);
 void free_enemy(Enemy *enemy);
 void free_interactable(Interactable *interactable);
