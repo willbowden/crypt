@@ -44,6 +44,13 @@ Level *create_empty_level()
     return NULL;
   }
 
+  level->foreground = (GenericTile ***)calloc(WINDOW_HEIGHT_SPRITES, sizeof(GenericTile **));
+  if (!level->foreground)
+  {
+    fprintf(stderr, "%s\n", "Error allocating mem for empty foreground layer");
+    return NULL;
+  }
+
   for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
   {
     level->background[y] = (Sprite **)calloc(WINDOW_WIDTH_SPRITES, sizeof(Sprite *));
@@ -52,21 +59,49 @@ Level *create_empty_level()
       fprintf(stderr, "Error allocating mem for empty background row %d\n", y);
       return NULL;
     }
+
+    level->foreground[y] = (GenericTile **)calloc(WINDOW_WIDTH_SPRITES, sizeof(GenericTile *));
+    if (!level->foreground[y])
+    {
+      fprintf(stderr, "Error allocating mem for empty foreground row %d\n", y);
+      return NULL;
+    }
   }
 
   return level;
 }
 
+/**
+ * TODO: Calculate rotation/flipping from bit flags
+ */
+Sprite *sprite_from_number(int tileNo)
+{
+  int spriteX, spriteY;
+  Sprite *newSprite;
+
+  if (tileNo == -1)
+  {
+    return NULL;
+  }
+
+  spriteX = ((tileNo + 1) % SPRITESHEET_WIDTH_SPRITES) - 1;
+  spriteY = (int)tileNo / SPRITESHEET_WIDTH_SPRITES;
+
+  newSprite = (Sprite *)calloc(1, sizeof(Sprite));
+  newSprite->spriteX = spriteX;
+  newSprite->spriteY = spriteY;
+  newSprite->angle = 0.0;
+  newSprite->flip = SDL_FLIP_NONE;
+
+  return newSprite;
+}
+
 int load_background(Level *level, char *levelName)
 {
-  /**
-   * TODO: HANDLE ROTATION AND FLIPPING
-   */
   char suffix[] = "_Background.csv";
   FILE *file = NULL;
   int tileNo = -1;
-  int x, y, spriteX, spriteY, successfulReads = 0;
-  Sprite *newSprite;
+  int x, y, successfulReads = 0;
 
   strcat(levelName, suffix);
 
@@ -91,27 +126,10 @@ int load_background(Level *level, char *levelName)
           return -1;
         }
       }
-
-
-      if (tileNo == -1)
-      {
-        level->background[y][x] = NULL;
-        continue;
-      }
-
-      spriteX = ((tileNo + 1) % SPRITESHEET_WIDTH_SPRITES) - 1;
-      spriteY = (int)tileNo / SPRITESHEET_WIDTH_SPRITES;
-
-      newSprite = (Sprite *)calloc(1, sizeof(Sprite));
-      newSprite->spriteX = spriteX;
-      newSprite->spriteY = spriteY;
-      newSprite->angle = 0.0;
-      newSprite->flip = SDL_FLIP_NONE;
-
-      level->background[y][x] = newSprite;
+      level->background[y][x] = sprite_from_number(tileNo);
     }
   }
-  
+
   fclose(file);
   return 0;
 }

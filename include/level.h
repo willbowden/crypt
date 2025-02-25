@@ -1,4 +1,5 @@
 struct Sprite;
+struct GenericTile;
 
 /** TODO HERE
  * When Player/Entity structs are defined, e.g:
@@ -13,6 +14,11 @@ struct Sprite;
 typedef struct Level
 {
   struct Sprite ***background;
+  /** 
+   * Use generic tiles for all other map elements,
+   * and cast to the correct pointer type after checking genericTile->type
+  */
+  struct GenericTile ***foreground;
 } Level;
 
 void cleanup_level(Level *level);
