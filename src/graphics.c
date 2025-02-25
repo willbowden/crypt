@@ -43,7 +43,8 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
-  if (SDL_RenderSetScale(graphics->renderer, RENDER_SCALE, RENDER_SCALE) < 0) {
+  if (SDL_RenderSetScale(graphics->renderer, RENDER_SCALE, RENDER_SCALE) < 0)
+  {
     fprintf(stderr, "Setting render scale failed: %s\n", IMG_GetError());
     return NULL;
   }
@@ -53,16 +54,20 @@ GraphicsEngine *initialise_graphics()
 
 void cleanup_graphics(GraphicsEngine *ge)
 {
-  if (!ge) return;
+  if (!ge)
+    return;
 
-  if (ge->spritesheet) {
+  if (ge->spritesheet)
+  {
     SDL_DestroyTexture(ge->spritesheet);
   }
-  if (ge->renderer) {
-      SDL_DestroyRenderer(ge->renderer);
+  if (ge->renderer)
+  {
+    SDL_DestroyRenderer(ge->renderer);
   }
-  if (ge->window) {
-      SDL_DestroyWindow(ge->window);
+  if (ge->window)
+  {
+    SDL_DestroyWindow(ge->window);
   }
 
   IMG_Quit();
@@ -95,7 +100,7 @@ void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
-void draw_background(GraphicsEngine *ge, Sprite ***background)
+void draw_level(GraphicsEngine *ge, Level *level)
 {
   int x, y;
 
@@ -103,17 +108,24 @@ void draw_background(GraphicsEngine *ge, Sprite ***background)
   {
     for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
     {
-      if (background[y][x])
+      if (level->foreground[y][x])
       {
-        draw_sprite(ge, background[y][x], x, y);
+        draw_sprite(ge, level->foreground[y][x], x, y);
+      }
+      else if (level->background[y][x])
+      {
+        /**
+         * TODO: Cast to appropriate entity type to access sprite.
+         */
+        draw_sprite(ge, level->foreground[y][x], x, y);
       }
     }
   }
 }
 
-void draw_level(GraphicsEngine *ge, Level *level)
+void draw_screen(GraphicsEngine *ge, Level *level)
 {
-  draw_background(ge, level->background);
+  draw_level(ge, level);
 }
 
 void present_frame(GraphicsEngine *ge)

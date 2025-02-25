@@ -1,16 +1,6 @@
 struct Sprite;
-struct GenericTile;
+struct Entity;
 
-/** TODO HERE
- * When Player/Entity structs are defined, e.g:
- * struct Entity {
- *   int worldX;
- *   int worldY;
- *   Sprite sprite;
- *   int passable;
- * }
- * I can then add the relevant layers to the level
-*/
 typedef struct Level
 {
   struct Sprite ***background;
@@ -18,10 +8,16 @@ typedef struct Level
    * Use generic tiles for all other map elements,
    * and cast to the correct pointer type after checking genericTile->type
   */
-  struct GenericTile ***foreground;
+  struct Entity ***foreground;
 } Level;
 
+typedef void *(*ENTITY_FACTORY)(int);
+typedef void *** LEVEL_LAYER;
+
+void cleanup_background(Level *level);
+void cleanup_foreground(Level *level);
 void cleanup_level(Level *level);
 Level *create_empty_level();
-int load_background(Level *level, char *levelName);
+struct Sprite *sprite_from_number(int tileNo);
+int load_layer(void ***layer, char *levelPrefix, char *levelSuffix, void *(*num_to_entity_func)(int));
 Level *load_level(char *levelName);

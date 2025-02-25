@@ -3,12 +3,9 @@
 #include <string.h>
 #include "main.h"
 
-void cleanup_level(Level *level)
+void cleanup_background(Level *level)
 {
-  int y;
-
-  if (!level)
-    return;
+  int x, y;
 
   if (level->background)
   {
@@ -16,12 +13,48 @@ void cleanup_level(Level *level)
     {
       if (level->background[y])
       {
+        for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+        {
+          /* Free the background sprites */
+          if (level->background[y][x])
+          {
+            free(level->background[y][x]);
+          }
+        }
+
         free(level->background[y]);
       }
     }
 
     free(level->background);
   }
+}
+
+void cleanup_foreground(Level *level)
+{
+  int y;
+
+  if (level->foreground)
+  {
+    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+    {
+      if (level->foreground[y])
+      {
+        free(level->foreground[y]);
+      }
+    }
+
+    free(level->foreground);
+  }
+}
+
+void cleanup_level(Level *level)
+{
+  if (!level)
+    return;
+
+  cleanup_background(level);
+  cleanup_foreground(level);
 
   free(level);
 }
@@ -44,7 +77,7 @@ Level *create_empty_level()
     return NULL;
   }
 
-  level->foreground = (GenericTile ***)calloc(WINDOW_HEIGHT_SPRITES, sizeof(GenericTile **));
+  level->foreground = (Entity ***)calloc(WINDOW_HEIGHT_SPRITES, sizeof(Entity **));
   if (!level->foreground)
   {
     fprintf(stderr, "%s\n", "Error allocating mem for empty foreground layer");
@@ -60,7 +93,7 @@ Level *create_empty_level()
       return NULL;
     }
 
-    level->foreground[y] = (GenericTile **)calloc(WINDOW_WIDTH_SPRITES, sizeof(GenericTile *));
+    level->foreground[y] = (Entity **)calloc(WINDOW_WIDTH_SPRITES, sizeof(Entity *));
     if (!level->foreground[y])
     {
       fprintf(stderr, "Error allocating mem for empty foreground row %d\n", y);
@@ -96,14 +129,37 @@ Sprite *sprite_from_number(int tileNo)
   return newSprite;
 }
 
-int load_background(Level *level, char *levelName)
+Entity *entity_from_number(int tileNo)
 {
-  char suffix[] = "_Background.csv";
+  Sprite *sprite;
+
+  if (tileNo == -1)
+  {
+    return NULL;
+  }
+
+  /**
+   * TODO: Add inequalities to match different tile numbers
+   * to different entity types.
+   * 
+   * For now, all tiles are assumed to be ForegroundTiles
+   */
+
+  sprite = sprite_from_number(tileNo);
+
+  return (Entity *) create_foreground_tile(sprite, 0);
+}
+
+
+int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)
+{
+  char *levelName = (char *)malloc((strlen(levelPrefix) + 15) * sizeof(char));
   FILE *file = NULL;
   int tileNo = -1;
   int x, y, successfulReads = 0;
 
-  strcat(levelName, suffix);
+  strcpy(levelName, levelPrefix);
+  strcat(levelName, levelSuffix);
 
   file = fopen(levelName, "r");
 
@@ -112,6 +168,8 @@ int load_background(Level *level, char *levelName)
     fprintf(stderr, "Error opening level file: %s\n", levelName);
     return -1;
   }
+
+  free(levelName);
 
   for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
   {
@@ -126,7 +184,8 @@ int load_background(Level *level, char *levelName)
           return -1;
         }
       }
-      level->background[y][x] = sprite_from_number(tileNo);
+
+      layer[y][x] = (void *)func(tileNo);
     }
   }
 
@@ -141,7 +200,21 @@ Level *load_level(char *levelName)
 
   strcat(levelPrefix, levelName);
 
-  if (load_background(level, levelPrefix) < 0)
+  if (load_layer(
+          (LEVEL_LAYER)level->background,
+          levelName,
+          "_Background.csv",
+          (ENTITY_FACTORY)sprite_from_number) < 0)
+  {
+    free(levelPrefix);
+    return NULL;
+  }
+
+  if (load_layer(
+          (LEVEL_LAYER)level->foreground,
+          levelName,
+          "_Foreground.csv",
+          (ENTITY_FACTORY)entity_from_number) < 0)
   {
     free(levelPrefix);
     return NULL;
