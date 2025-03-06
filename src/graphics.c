@@ -100,6 +100,23 @@ void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
+Sprite *sprite_from_entity(Entity *e)
+{
+  switch (e->type)
+  {
+  case ENEMY:
+    return ((Enemy *)e)->sprite;
+  case PLAYER:
+    return ((Player *)e)->sprite;
+  case INTERACTABLE:
+    return ((Interactable *)e)->sprite;
+  case FOREGROUND_TILE:
+    return ((ForegroundTile *)e)->sprite;
+  default:
+    return NULL;
+  }
+}
+
 void draw_level(GraphicsEngine *ge, Level *level)
 {
   int x, y;
@@ -110,14 +127,11 @@ void draw_level(GraphicsEngine *ge, Level *level)
     {
       if (level->foreground[y][x])
       {
-        draw_sprite(ge, level->foreground[y][x], x, y);
+        draw_sprite(ge, sprite_from_entity(level->foreground[y][x]), x, y);
       }
       else if (level->background[y][x])
       {
-        /**
-         * TODO: Cast to appropriate entity type to access sprite.
-         */
-        draw_sprite(ge, level->foreground[y][x], x, y);
+        draw_sprite(ge, level->background[y][x], x, y);
       }
     }
   }

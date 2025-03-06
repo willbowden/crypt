@@ -49,12 +49,18 @@ int main(int argc, char **argv)
       {
         running = 0;
       }
+      /**
+       * TEMPORARY: Only re-render on key press to stop endless rendering of static screen
+       *  In future, only re-render after player/enemy movement steps or UI actions.
+       */
+      if (e.type == SDL_KEYUP)
+      {
+        clear_screen(game->graphics);
+        draw_level(game->graphics, game->level);
+        present_frame(game->graphics);
+      }
     }
 
-    /* Render loop, can put steps in here for UI or player movement*/
-    clear_screen(game->graphics);
-    draw_level(game->graphics, game->level);
-    present_frame(game->graphics);
   }
 
   cleanup_game(game);

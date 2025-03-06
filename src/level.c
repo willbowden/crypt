@@ -109,7 +109,7 @@ Level *create_empty_level()
  */
 Sprite *sprite_from_number(int tileNo)
 {
-  int spriteX, spriteY;
+  int spriteX, spriteY, hflip, vflip, dflip;
   Sprite *newSprite;
 
   if (tileNo == -1)
@@ -117,14 +117,48 @@ Sprite *sprite_from_number(int tileNo)
     return NULL;
   }
 
+  hflip = tileNo & 1 << 31;
+  vflip = tileNo & 1 << 30;
+  dflip = tileNo & 1 << 29;
+
+  tileNo &= ~(1 << 31 | 1 << 30 | 1 << 29);
+
   spriteX = ((tileNo + 1) % SPRITESHEET_WIDTH_SPRITES) - 1;
   spriteY = (int)tileNo / SPRITESHEET_WIDTH_SPRITES;
 
   newSprite = (Sprite *)calloc(1, sizeof(Sprite));
   newSprite->spriteX = spriteX;
   newSprite->spriteY = spriteY;
-  newSprite->angle = 0.0;
+  newSprite->angle = 0;
   newSprite->flip = SDL_FLIP_NONE;
+
+  /**
+   * TODO: Still figuring out flips
+   */
+
+  if (dflip)
+  {
+    if (hflip)
+    {
+      newSprite->angle = 90.0;
+    }
+    else if (vflip)
+    {
+      newSprite->angle = 270.0;
+    }
+  }
+  else if (hflip && vflip)
+  {
+    newSprite->angle = 180.0;
+  }
+  else if (hflip)
+  {
+    newSprite->flip = SDL_FLIP_HORIZONTAL;
+  }
+  else if (vflip)
+  {
+    newSprite->flip = SDL_FLIP_VERTICAL;
+  }
 
   return newSprite;
 }
@@ -141,15 +175,14 @@ Entity *entity_from_number(int tileNo)
   /**
    * TODO: Add inequalities to match different tile numbers
    * to different entity types.
-   * 
+   *
    * For now, all tiles are assumed to be ForegroundTiles
    */
 
   sprite = sprite_from_number(tileNo);
 
-  return (Entity *) create_foreground_tile(sprite, 0);
+  return (Entity *)create_foreground_tile(sprite, 0);
 }
-
 
 int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)
 {
