@@ -2,15 +2,6 @@
 #include <stdlib.h>
 #include "main.h"
 
-Player *create_player(Sprite *sprite, int health)
-{
-    Player *player = (Player *)malloc(sizeof(Player));
-    player->sprite = sprite;
-    player->health = health;
-    player->type = PLAYER;
-    return player;
-}
-
 Enemy *create_enemy(Sprite *sprite, int health)
 {
     Enemy *enemy = (Enemy *)malloc(sizeof(Enemy));
@@ -35,12 +26,6 @@ ForegroundTile *create_foreground_tile(Sprite *sprite, int passable)
     tile->passable = passable;
     tile->type = FOREGROUND_TILE;
     return tile;
-}
-
-void free_player(Player *player)
-{
-    free(player->sprite);
-    free(player);
 }
 
 void free_enemy(Enemy *enemy)
