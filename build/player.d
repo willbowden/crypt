@@ -1,4 +1,4 @@
-build/graphics.o: src/graphics.c include/main.h include/level.h \
+build/player.o: src/player.c include/main.h include/level.h \
  include/graphics.h include/enemy.h include/entity_system.h \
  include/player.h
 include/main.h:

@@ -14,15 +14,26 @@ void cleanup_game(Game *game)
     cleanup_level(game->level);
   }
 
+  if (game->player)
+  {
+    free_player(game->player);
+  }
+
   free(game);
 }
 
-int main(int argc, char **argv)
+void handle_keypress(Game *game, SDL_Event *e)
 {
-  Game *game = (Game *)calloc(1, sizeof(Game));
-  int running = 1;
-  SDL_Event e;
-  
+  SDL_KeyCode key = e->key.keysym.sym;
+
+  if (key >= SDLK_RIGHT && key <= SDLK_UP)
+  {
+    move_player(game, key);
+  }
+}
+
+int initialise_game(Game *game)
+{  
   game->graphics = initialise_graphics();
 
   if (!game->graphics)
@@ -41,6 +52,28 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  game->player = add_player(game, 25, 29, 9);
+
+  if (!game->level)
+  {
+    fprintf(stderr, "%s\n", "Error adding player");
+    cleanup_game(game);
+    return 1;
+  }
+
+  return 0;
+}
+
+int main(int argc, char **argv)
+{
+  int running = 1;
+  SDL_Event e;
+  Game *game = (Game *)calloc(1, sizeof(Game));
+  if (initialise_game(game) != 0)
+  {
+    return 1;
+  }
+
   while (running)
   {
     while (SDL_PollEvent(&e))
@@ -49,12 +82,19 @@ int main(int argc, char **argv)
       {
         running = 0;
       }
+      /**
+       * TEMPORARY: Only re-render on key press to stop endless rendering of static screen
+       *  In future, only re-render after player/enemy movement steps or UI actions.
+       */
+      if (e.type == SDL_KEYUP)
+      {
+        handle_keypress(game, &e);
+        clear_screen(game->graphics);
+        draw_level(game->graphics, game->level);
+        present_frame(game->graphics);
+      }
     }
 
-    /* Render loop, can put steps in here for UI or player movement*/
-    clear_screen(game->graphics);
-    draw_level(game->graphics, game->level);
-    present_frame(game->graphics);
   }
 
   cleanup_game(game);

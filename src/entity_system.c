@@ -2,41 +2,45 @@
 #include <stdlib.h>
 #include "main.h"
 
-int main(int argc, char **argv) {
-    return 0;
-}
-
-Player * create_player(Sprite *sprite, int health, bool turn) {
-    Player player = malloc(sizeof(Player));
-    player->sprite = sprite;
-    player->health = health;
-    player->turn = turn;
-}
-
-Enemy * create_enemy(Sprite *sprite, int health, bool turn) {
-    Enemy enemy = malloc(sizeof(Enemy));
-    enemy->health = health;
+Enemy *create_enemy(Sprite *sprite)
+{
+    Enemy *enemy = (Enemy *)malloc(sizeof(Enemy));
     enemy->sprite = sprite;
-    enemy->turn = turn;
+    enemy->entity_type = ENEMY;
+    return enemy;
 }
 
-Interactable * create_interactable(Sprite *sprite, bool passable) {
-    Interactable interactable = malloc(sizeof(Interactable));
-    interactable->passable = passable;
+Interactable *create_interactable(Sprite *sprite, int passable)
+{
+    Interactable *interactable = (Interactable *)malloc(sizeof(Interactable));
+    interactable->sprite = sprite;
+    interactable->type = INTERACTABLE;
     return interactable;
 }
 
-void free_player(Player *player) {
-    free(player->sprite);
-    free(player);
+ForegroundTile *create_foreground_tile(Sprite *sprite, int passable)
+{
+    ForegroundTile *tile = (ForegroundTile *)malloc(sizeof(ForegroundTile));
+    tile->sprite = sprite;
+    tile->passable = passable;
+    tile->type = FOREGROUND_TILE;
+    return tile;
 }
 
-void free_enemy(Enemy *enemy) {
+void free_enemy(Enemy *enemy)
+{
     free(enemy->sprite);
     free(enemy);
 }
 
-void free_interactable(Interactable *interactable) {
+void free_interactable(Interactable *interactable)
+{
     free(interactable->sprite);
     free(interactable);
+}
+
+void free_foreground_tile(ForegroundTile *tile)
+{
+    free(tile->sprite);
+    free(tile);
 }
