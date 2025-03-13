@@ -172,6 +172,8 @@ Entity *entity_from_number(int tileNo)
     return NULL;
   }
 
+  sprite = sprite_from_number(tileNo);
+
   /**
    * TODO: Add inequalities to match different tile numbers
    * to different entity types.
@@ -179,7 +181,6 @@ Entity *entity_from_number(int tileNo)
    * For now, all tiles are assumed to be ForegroundTiles
    */
 
-  sprite = sprite_from_number(tileNo);
 
   return (Entity *)create_foreground_tile(sprite, 0);
 }

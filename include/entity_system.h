@@ -1,4 +1,4 @@
-#include <stdbool.h>
+
 
 typedef enum {
     ENEMY, 
@@ -7,12 +7,7 @@ typedef enum {
     FOREGROUND_TILE
 } EntityType;
 
-typedef enum {
-    OGRE,
-    BRUH
-} EnemyType;
-
-typedef struct {
+typedef struct Player {
     EntityType type;
     Sprite *sprite;
     int worldX;
@@ -20,18 +15,21 @@ typedef struct {
     int health;
 } Player;
 
-typedef struct {
+typedef struct Interactable {
     EntityType type;
     Sprite *sprite;
 } Interactable;
 
-typedef struct {
-    EntityType type;
+typedef struct Enemy {
+    EntityType entity_type;
+    EnemyType enemy_type;
     Sprite *sprite;
     int health;
+    int attack_damage;
+    SpecialAbility ability;
 } Enemy;
 
-typedef struct {
+typedef struct ForegroundTile {
     EntityType type;
     Sprite *sprite;
     int passable;
@@ -41,12 +39,10 @@ typedef struct Entity {
     EntityType type;
 } Entity;
 
-Player * create_player(Sprite *sprite, int health);
-Enemy * create_enemy(Sprite *sprite, int health);
+Enemy * create_enemy(Sprite *sprite);
 Interactable * create_interactable(Sprite *sprite, int passable);
 ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);
 
-void free_player(Player *player);
 void free_enemy(Enemy *enemy);
 void free_interactable(Interactable *interactable);
 void free_foreground_tile(ForegroundTile *tile);
