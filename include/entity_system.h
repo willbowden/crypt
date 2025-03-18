@@ -1,16 +1,9 @@
-
-
 typedef enum {
     ENEMY, 
     PLAYER, 
     INTERACTABLE,
     FOREGROUND_TILE
 } EntityType;
-
-typedef enum {
-    OGRE,
-    BRUH
-} EnemyType;
 
 typedef struct Player {
     EntityType type;
@@ -44,8 +37,8 @@ typedef struct Entity {
     EntityType type;
 } Entity;
 
-Player * create_player(Sprite *sprite, int health);
-Enemy * create_enemy(Sprite *sprite, int health);
+Player * create_player(Sprite *sprite, int health, int worldX, int worldY);
+Enemy * create_enemy(Sprite *sprite);
 Interactable * create_interactable(Sprite *sprite, int passable);
 ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);
 
