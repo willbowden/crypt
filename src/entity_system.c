@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include "main.h"
 
-Enemy *create_enemy(Sprite *sprite, int health)
+Enemy *create_enemy(Sprite *sprite)
 {
     Enemy *enemy = (Enemy *)malloc(sizeof(Enemy));
-    enemy->health = health;
     enemy->sprite = sprite;
-    enemy->type = ENEMY;
+    enemy->entity_type = ENEMY;
     return enemy;
 }
 

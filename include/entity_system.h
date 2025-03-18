@@ -1,3 +1,5 @@
+
+
 typedef enum {
     ENEMY, 
     PLAYER, 
@@ -24,9 +26,12 @@ typedef struct Interactable {
 } Interactable;
 
 typedef struct Enemy {
-    EntityType type;
+    EntityType entity_type;
+    EnemyType enemy_type;
     Sprite *sprite;
     int health;
+    int attack_damage;
+    SpecialAbility ability;
 } Enemy;
 
 typedef struct ForegroundTile {
@@ -39,6 +44,7 @@ typedef struct Entity {
     EntityType type;
 } Entity;
 
+Player * create_player(Sprite *sprite, int health);
 Enemy * create_enemy(Sprite *sprite, int health);
 Interactable * create_interactable(Sprite *sprite, int passable);
 ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);

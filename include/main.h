@@ -1,5 +1,6 @@
 #include "level.h"
 #include "graphics.h"
+#include "enemy.h"
 #include "entity_system.h"
 #include "player.h"
 
