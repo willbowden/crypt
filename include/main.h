@@ -3,7 +3,6 @@
 #include "enemy.h"
 #include "entity_system.h"
 #include "player.h"
-#include <stdio.h>
 
 typedef struct Game
 {
