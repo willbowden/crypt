@@ -1,6 +1,7 @@
 
 
 typedef enum {
+    INVALID,
     ENEMY, 
     PLAYER, 
     INTERACTABLE,

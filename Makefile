@@ -4,6 +4,7 @@ COMPILE = $(COMPILER) $(OPTIONS)
 
 SRC = src
 BUILD = build
+SAVE = saves
 BIN = bin
 INCLUDE = include
 
@@ -13,7 +14,7 @@ DEPS = $(OBJECTS:.o=.d)
 
 TARGET = $(BIN)/crypt
 
-$(shell mkdir -p $(BUILD) $(BIN))
+$(shell mkdir -p $(BUILD) $(BIN) $(SAVE))
 
 all: $(TARGET)
 
