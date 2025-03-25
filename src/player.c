@@ -58,17 +58,13 @@ void move_player(Game *game, SDL_KeyCode key)
   }
 }
 
-Player *add_player(Game *game, int tileNo, int x, int y)
+void add_player(Game *game)
 {
-  Player *player = create_player(sprite_from_number(tileNo), 100, x, y);
-  if (game->level->foreground[y][x] != NULL)
+  if (game->level->foreground[game->player->worldY][game->player->worldX] != NULL)
   {
-    free_player(player);
     fprintf(stderr, "%s\n", "Cannot place player on occupied tile!");
     return NULL;
   }
 
-  game->level->foreground[y][x] = (Entity *)player;
-
-  return player;
+  game->level->foreground[game->player->worldY][game->player->worldX] = (Entity *) game->player;
 }

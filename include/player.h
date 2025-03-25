@@ -8,4 +8,4 @@ struct Sprite;
 Player *create_player(struct Sprite *sprite, int health, int worldX, int worldY);
 void free_player(Player *player);
 void move_player(struct Game *game, SDL_KeyCode key);
-struct Player *add_player(struct Game *game, int tileNo, int x, int y);
+struct Player *add_player(struct Game *game);

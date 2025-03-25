@@ -150,6 +150,8 @@ int main(int argc, char **argv)
     fprintf(stderr, "Error: Unable to initialize game");
     return 1;
   }
+  
+  add_player(game);
 
   /*if(player == NULL) {
     fprintf(stderr, "Error: Something went wrong when creating the player.");
@@ -160,9 +162,6 @@ int main(int argc, char **argv)
   {
     return 1;
   }*/
-
-  printf("The health of player is %d\n", game->player->health);
-  printf("The world coordinate is %d and %d\n", game->player->worldX, game->player->worldY);
 
   while (running)
   {
