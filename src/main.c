@@ -2,7 +2,8 @@
 
 void cleanup_game(Game *game)
 {
-  if (!game) return;
+  if (!game)
+    return;
 
   if (game->graphics)
   {
@@ -22,18 +23,8 @@ void cleanup_game(Game *game)
   free(game);
 }
 
-void handle_keypress(Game *game, SDL_Event *e)
-{
-  SDL_KeyCode key = e->key.keysym.sym;
-
-  if (key >= SDLK_RIGHT && key <= SDLK_UP)
-  {
-    move_player(game, key);
-  }
-}
-
 int initialise_game(Game *game)
-{  
+{
   game->graphics = initialise_graphics();
 
   if (!game->graphics)
@@ -64,15 +55,46 @@ int initialise_game(Game *game)
   return 0;
 }
 
-int main(int argc, char **argv)
+void handle_keypress(Game *game, SDL_Event *e)
+{
+  SDL_KeyCode key = e->key.keysym.sym;
+
+  switch (game->state)
+  {
+  case PLAYER_TURN:
+    if (key >= SDLK_RIGHT && key <= SDLK_UP)
+    {
+      move_player(game, key);
+      game->state = ENEMY_TURN;
+    } else if (key == SDLK_p) {
+      game->state = PAUSED;
+    }
+    break;
+  case PAUSED:
+    if (key == SDLK_p)
+    {
+      game->state = PLAYER_TURN;
+    }
+    break;
+  case MENU_OPEN:
+    /**
+     * TODO: Handle menu inputs here
+     */
+    break;
+  case DIALOG_OPEN:
+    /**
+     * TODO: Handle dialog inputs here
+     */
+    break;
+  default:
+    break;
+  }
+}
+
+void run_game(Game *game)
 {
   int running = 1;
   SDL_Event e;
-  Game *game = (Game *)calloc(1, sizeof(Game));
-  if (initialise_game(game) != 0)
-  {
-    return 1;
-  }
 
   while (running)
   {
@@ -82,20 +104,49 @@ int main(int argc, char **argv)
       {
         running = 0;
       }
-      /**
-       * TEMPORARY: Only re-render on key press to stop endless rendering of static screen
-       *  In future, only re-render after player/enemy movement steps or UI actions.
-       */
-      if (e.type == SDL_KEYUP)
+
+      switch (game->state)
       {
-        handle_keypress(game, &e);
-        clear_screen(game->graphics);
-        draw_level(game->graphics, game->level);
-        present_frame(game->graphics);
+      case ENEMY_TURN:
+        /** TODO: Process enemy turns here */
+        game->state = PLAYER_TURN;
+        break;
+      case LOADING:
+        break;
+      /**
+       * If it's neither the enemy's turn nor is the game loading,
+       *  the player's key input must be handled.
+       */
+      default:
+        if (e.type == SDL_KEYUP)
+        {
+          handle_keypress(game, &e);
+          clear_screen(game->graphics);
+          draw_level(game->graphics, game->level);
+          present_frame(game->graphics);
+        }
+        break;
       }
     }
-
   }
+}
+
+int main(int argc, char **argv)
+{
+  Game *game = (Game *)calloc(1, sizeof(Game));
+  game->state = LOADING;
+
+  if (initialise_game(game) != 0)
+  {
+    return 1;
+  }
+
+  game->state = PLAYER_TURN;
+
+  draw_level(game->graphics, game->level);
+  present_frame(game->graphics);
+
+  run_game(game);
 
   cleanup_game(game);
 
