@@ -2,7 +2,8 @@
 
 void cleanup_game(Game *game)
 {
-  if (!game) return;
+  if (!game)
+    return;
 
   if (game->graphics)
   {
@@ -139,12 +140,51 @@ int initialise_game(Game *game, char *levelName, Player *player)
   return 0;
 }
 
-int main(int argc, char **argv)
+void handle_keypress(Game *game, SDL_Event *e)
+{
+  SDL_KeyCode key = e->key.keysym.sym;
+
+  switch (game->state)
+  {
+  case PLAYER_TURN:
+    if (key >= SDLK_RIGHT && key <= SDLK_UP)
+    {
+      move_player(game, key);
+      game->state = ENEMY_TURN;
+    } else if (key == SDLK_p) {
+      game->state = PAUSED;
+    }
+    break;
+  case PAUSED:
+    if (key == SDLK_p)
+    {
+      game->state = PLAYER_TURN;
+    }
+    break;
+  case MENU_OPEN:
+    /**
+     * TODO: Handle menu inputs here
+     */
+    break;
+  case DIALOG_OPEN:
+    /**
+     * TODO: Handle dialog inputs here
+     */
+    break;
+  default:
+    break;
+  }
+}
+
+/* Saving on quit and saving periodically between turns */
+void run_game(Game *game)
 {
   int running = 1;
   SDL_Event e;
   Game *game = load_game("./saves/save1");
   char *levelName = "./assets/Levels/Level1";
+  
+  game->state = LOADING;
   
   if(game == NULL) {
     fprintf(stderr, "Error: Unable to initialize game");
@@ -152,6 +192,7 @@ int main(int argc, char **argv)
   }
   
   add_player(game);
+
 
   /*if(player == NULL) {
     fprintf(stderr, "Error: Something went wrong when creating the player.");
@@ -163,28 +204,12 @@ int main(int argc, char **argv)
     return 1;
   }*/
 
-  while (running)
-  {
-    while (SDL_PollEvent(&e))
-    {
-      if (e.type == SDL_QUIT)
-      {
-        running = 0;
-      }
-      /**
-       * TEMPORARY: Only re-render on key press to stop endless rendering of static screen
-       *  In future, only re-render after player/enemy movement steps or UI actions.
-       */
-      if (e.type == SDL_KEYUP)
-      {
-        handle_keypress(game, &e);
-        clear_screen(game->graphics);
-        draw_level(game->graphics, game->level);
-        present_frame(game->graphics);
-      }
-    }
+  draw_level(game->graphics, game->level);
+  present_frame(game->graphics);
 
-  }
+  game->state = PLAYER_TURN;
+  run_game(game);
+
 
   if(save_game(game, levelName, "./saves/save1")) {
     fprintf(stderr, "Error: Something went wrong while saving the game");

@@ -6,11 +6,22 @@
 #include "string.h"
 #include <stdio.h>
 
+typedef enum GameState {
+  LOADING,
+  PLAYER_TURN,
+  ENEMY_TURN,
+  PAUSED,
+  MENU_OPEN,
+  DIALOG_OPEN
+} GameState;
+
+
 typedef struct Game
 {
   GraphicsEngine *graphics;
   Level *level;
   Player *player;
+  GameState state;
 } Game;
 
 typedef struct {
