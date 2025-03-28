@@ -83,7 +83,7 @@ void handle_keypress(Game *game, SDL_Event *e)
     } else if (key == SDLK_p) {
       game->state = PAUSED;
     } else if (key == SDLK_o) {
-      show_popup(game, "Hello!");
+      show_popup(game, "Hello, World!");
       game->state = DIALOG_OPEN;
     }
     break;

@@ -29,5 +29,6 @@ GraphicsEngine *initialise_graphics();
 void cleanup_graphics(GraphicsEngine *ge);
 void clear_screen(GraphicsEngine *ge);
 void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY);
+void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY);
 void draw_level(GraphicsEngine *ge, Level *level);
 void present_frame(GraphicsEngine *ge);

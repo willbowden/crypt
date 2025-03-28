@@ -1,5 +1,8 @@
 struct Game;
 
+#define POPUP_HEIGHT 9
+#define FONT_SIZE 16
+
 typedef struct UI {
   char *message;
   int visible;

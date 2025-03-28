@@ -17,10 +17,10 @@ void cleanup_ui(UI *ui)
   free(ui);
 }
 
-void draw_popup_borders(Game *game, int height)
+void draw_popup(Game *game)
 {
   int endX = WINDOW_WIDTH_SPRITES - 1;
-  int startY = WINDOW_HEIGHT_SPRITES - height;
+  int startY = WINDOW_HEIGHT_SPRITES - POPUP_HEIGHT;
   int endY = WINDOW_HEIGHT_SPRITES - 1;
   int cornerXs[] = {18, 20, 18, 20};
   int cornerYs[] = {0, 0, 2, 2};
@@ -37,7 +37,7 @@ void draw_popup_borders(Game *game, int height)
   {
     for (x = 0; x <= endX; x++)
     {
-      if ((x == 0 && y == startY) || (x == endX && y == startY) ||        
+      if ((x == 0 && y == startY) || (x == endX && y == startY) ||
           (x == 0 && y == endY) || (x == endX && y == endY))
       {
         cornerIndex = (y == startY ? 0 : 2) + (x == endX ? 1 : 0);
@@ -64,7 +64,7 @@ void draw_popup_borders(Game *game, int height)
         sprite.spriteX = edgeXs[3];
         sprite.spriteY = edgeYs[3];
       }
-      else 
+      else
       {
         sprite.spriteX = 0;
         sprite.spriteY = 0;
@@ -75,20 +75,35 @@ void draw_popup_borders(Game *game, int height)
   }
 }
 
-void draw_empty_popup(Game *game)
+void draw_text(Game *game)
 {
-  int height = 9;
-  /*
-  Sprite sprite;
-  int x = 0;
-  int y = 0;*/
+  int x, y;
+  int msgIndex = 0;
+  int msgSpaceWidth = WINDOW_WIDTH_SPRITES - 4;
+  int startY = (WINDOW_HEIGHT_SPRITES - POPUP_HEIGHT) + 2;
+  int endY = WINDOW_HEIGHT_SPRITES - 1;
 
-  draw_popup_borders(game, height);
+  for (y = startY; y < endY; y++)
+  {
+    for (x = 2; x < WINDOW_WIDTH_SPRITES - 2; x++)
+    {
+      msgIndex = ((y - startY) * msgSpaceWidth) + (x - 2);
+      if (game->ui->message[msgIndex] == '\0')
+      {
+        return;
+      }
+      else
+      {
+        draw_ascii_char(game->graphics, game->ui->message[msgIndex], x, y);
+      }
+    }
+  }
 }
 
 void draw_ui(Game *game)
 {
-  draw_empty_popup(game);
+  draw_popup(game);
+  draw_text(game);
 }
 
 void show_popup(Game *game, char *message)

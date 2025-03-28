@@ -111,6 +111,24 @@ void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
+void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY)
+{
+  SDL_Rect spriteClip;
+  SDL_Rect destRect;
+
+  spriteClip.x = (c - ' ') * FONT_SIZE;
+  spriteClip.y = 0;
+  spriteClip.w = FONT_SIZE;
+  spriteClip.h = FONT_SIZE;
+
+  destRect.x = worldX * FONT_SIZE;
+  destRect.y = worldY * FONT_SIZE;
+  destRect.w = FONT_SIZE;
+  destRect.h = FONT_SIZE;
+
+  SDL_RenderCopyEx(ge->renderer, ge->fontsheet, &spriteClip, &destRect, 0, NULL, 0);
+}
+
 Sprite *sprite_from_entity(Entity *e)
 {
   switch (e->type)
