@@ -23,6 +23,7 @@ void cleanup_game(Game *game)
   free(game);
 }
 
+/* TODO: Save with level completed function is implemented*/
 int save_game(Game *game, const char *levelName, const char *saveFilename) {
   int x, y;
   SaveData data;
@@ -52,10 +53,9 @@ int save_game(Game *game, const char *levelName, const char *saveFilename) {
   return 0;
 }
 
-/* TODO: modify add_player function such that it accepts the player as an input and returns an int as its output.
-It doesn't create a player in that function, instead uses the player that is passed as an argument*/
 Game *load_game(const char *saveFilename){
   int x, y;
+  int found = 1; /* Variable to check if the load_game function found the save file */
   SaveData loadData;
   Player *player;
   FILE *file = fopen(saveFilename, "rb");
@@ -63,14 +63,21 @@ Game *load_game(const char *saveFilename){
 
   if(game == NULL) {
     fprintf(stderr, "Error: Could not initiaze game");
-  }
-
-  if(file == NULL) {
-    fprintf(stderr, "Error: Could not open the save file");
     return NULL;
   }
 
-  fread(&loadData, sizeof(SaveData), 1, file);
+  if(file == NULL) {
+    fprintf(stderr, "Error: Could not open the save file. Starting a new game.");
+    game->state = LOADING;
+    found = 0;
+    loadData.playerX = 29;
+    loadData.playerY = 5;
+    loadData.playerHealth = 100; 
+    strcpy(loadData.levelName, "./assets/Levels/Level1");
+  } else {
+    fread(&loadData, sizeof(SaveData), 1, file);
+  }
+  
   player = create_player(sprite_from_number(25), loadData.playerHealth, loadData.playerX, loadData.playerY);
 
   if(player == NULL) {
@@ -83,28 +90,30 @@ Game *load_game(const char *saveFilename){
     return NULL;
   }
 
-  for(y = 0; y < WINDOW_HEIGHT_SPRITES; y++) {
-    for(x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
-      if(loadData.foregroundGrid[y][x].type == INVALID) {
-        game->level->foreground[y][x] = NULL;
-      } else {
-      *(game->level->foreground[y][x]) = loadData.foregroundGrid[y][x];
+  add_player(game, loadData.playerX, loadData.playerY);
+  
+  if (found) {
+    for(y = 0; y < WINDOW_HEIGHT_SPRITES; y++) {
+      for(x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
+        if(loadData.foregroundGrid[y][x].type == INVALID) {
+          game->level->foreground[y][x] = NULL;
+        } else {
+          if(game->level->foreground[y][x] == NULL) {
+            game->level->foreground[y][x] = (Entity *) malloc(sizeof(Entity));
+          }
+
+          if (game->level->foreground[y][x] == NULL) {
+            fprintf(stderr, "Error: Could not allocate memory for foreground entity\n");
+            return NULL;
+          }
+
+        *(game->level->foreground[y][x]) = loadData.foregroundGrid[y][x];
+        }
       }
     }
+    fclose(file);
   }
-
-  fclose(file);
   return game;
-}
-
-void handle_keypress(Game *game, SDL_Event *e)
-{
-  SDL_KeyCode key = e->key.keysym.sym;
-
-  if (key >= SDLK_RIGHT && key <= SDLK_UP)
-  {
-    move_player(game, key);
-  }
 }
 
 int initialise_game(Game *game, char *levelName, Player *player)
@@ -118,7 +127,6 @@ int initialise_game(Game *game, char *levelName, Player *player)
     return 1;
   }
 
-  printf("%s\n", levelName);
   game->level = load_level(levelName);
 
   if (!game->level)
@@ -176,11 +184,64 @@ void handle_keypress(Game *game, SDL_Event *e)
   }
 }
 
-/* Saving on quit and saving periodically between turns */
 void run_game(Game *game)
 {
   int running = 1;
+  int turns = 1;
   SDL_Event e;
+
+  while (running)
+  {
+    while (SDL_PollEvent(&e))
+    {
+      if (e.type == SDL_QUIT)
+      {
+        running = 0;
+      }
+
+      switch (game->state)
+      {
+      case ENEMY_TURN:
+        turns++;
+        /** TODO: Process enemy turns here */
+        game->state = PLAYER_TURN;
+        break;
+      case LOADING:
+        break;
+      /**
+       * If it's neither the enemy's turn nor is the game loading,
+       *  the player's key input must be handled.
+       */
+      default:
+        if (e.type == SDL_KEYUP)
+        {
+          handle_keypress(game, &e);
+          if(game->state == PLAYER_TURN) {
+            turns++;
+          }
+          clear_screen(game->graphics);
+          draw_level(game->graphics, game->level);
+          present_frame(game->graphics);
+        }
+        break;
+      }
+
+      if(turns % 5 == 0) {
+        /* Make sure to replace the levelName and saveFile name with their respective variables to make it modular. */
+        if(save_game(game, "./assets/Levels/Level1", "./saves/save1")) { /* Save every 5 turns */
+          fprintf(stderr, "Error: Something went wrong while saving the game");
+          return;
+        }
+        turns = 1;
+        printf("Game has been saved!\n");
+      }
+    }
+  }
+}
+
+/* Saving on quit and saving periodically between turns */
+int main()
+{
   Game *game = load_game("./saves/save1");
   char *levelName = "./assets/Levels/Level1";
   
@@ -190,9 +251,6 @@ void run_game(Game *game)
     fprintf(stderr, "Error: Unable to initialize game");
     return 1;
   }
-  
-  add_player(game);
-
 
   /*if(player == NULL) {
     fprintf(stderr, "Error: Something went wrong when creating the player.");

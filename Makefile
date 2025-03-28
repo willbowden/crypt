@@ -1,5 +1,5 @@
 COMPILER = gcc
-OPTIONS = -Wall -Werror -ansi -pedantic -MMD -MP -I $(INCLUDE)
+OPTIONS = -Wall -Werror -ansi -pedantic -MMD -MP -I $(INCLUDE) -g
 COMPILE = $(COMPILER) $(OPTIONS)
 
 SRC = src
