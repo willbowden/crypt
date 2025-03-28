@@ -15,6 +15,7 @@ typedef struct GraphicsEngine
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *spritesheet;
+  SDL_Texture *fontsheet;
 } GraphicsEngine;
 
 typedef struct Sprite
@@ -31,5 +32,4 @@ void cleanup_graphics(GraphicsEngine *ge);
 void clear_screen(GraphicsEngine *ge);
 void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY);
 void draw_level(GraphicsEngine *ge, Level *level);
-void draw_screen(GraphicsEngine *ge, Level *level);
 void present_frame(GraphicsEngine *ge);

@@ -43,6 +43,13 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
+  graphics->spritesheet = IMG_LoadTexture(graphics->renderer, "./assets/fontsheet.png");
+  if (!graphics->fontsheet)
+  {
+    fprintf(stderr, "Font sheet init failed: %s\n", IMG_GetError());
+    return NULL;
+  }
+
   if (SDL_RenderSetScale(graphics->renderer, RENDER_SCALE, RENDER_SCALE) < 0)
   {
     fprintf(stderr, "Setting render scale failed: %s\n", IMG_GetError());
@@ -60,6 +67,10 @@ void cleanup_graphics(GraphicsEngine *ge)
   if (ge->spritesheet)
   {
     SDL_DestroyTexture(ge->spritesheet);
+  }
+  if (ge->fontsheet)
+  {
+    SDL_DestroyTexture(ge->fontsheet);
   }
   if (ge->renderer)
   {
@@ -135,11 +146,6 @@ void draw_level(GraphicsEngine *ge, Level *level)
       }
     }
   }
-}
-
-void draw_screen(GraphicsEngine *ge, Level *level)
-{
-  draw_level(ge, level);
 }
 
 void present_frame(GraphicsEngine *ge)
