@@ -43,7 +43,7 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
-  graphics->spritesheet = IMG_LoadTexture(graphics->renderer, "./assets/fontsheet.png");
+  graphics->fontsheet = IMG_LoadTexture(graphics->renderer, "./assets/fontsheet.png");
   if (!graphics->fontsheet)
   {
     fprintf(stderr, "Font sheet init failed: %s\n", IMG_GetError());

@@ -8,8 +8,6 @@
 #define WINDOW_WIDTH_SPRITES 32
 #define RENDER_SCALE 3.0
 
-struct Game;
-
 typedef struct GraphicsEngine
 {
   SDL_Window *window;
