@@ -26,6 +26,16 @@ typedef struct Game
   UI *ui;
 } Game;
 
+typedef struct {
+  int playerX;
+  int playerY;
+  int playerHealth;
+  char levelName[64];
+  Entity foregroundGrid[WINDOW_HEIGHT_SPRITES][WINDOW_WIDTH_SPRITES];
+} SaveData;
+
 void cleanup_game(Game *game);
+int save_game(Game *game, const char *levelName, const char *saveFilename);
+Game *load_game(const char *saveFilename);
 void handle_keypress(Game *game, SDL_Event *e);
-int initialise_game(Game *game);
+int initialise_game(Game *game, char *levelName, Player *player);
