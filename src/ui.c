@@ -75,19 +75,19 @@ void draw_popup(Game *game)
   }
 }
 
-void draw_text(Game *game)
+void draw_text(Game *game, int textX, int textY, int lineLength)
 {
   int x, y;
   int msgIndex = 0;
   int msgSpaceWidth = WINDOW_WIDTH_SPRITES - 4;
-  int startY = (WINDOW_HEIGHT_SPRITES - POPUP_HEIGHT) + 2;
+  int endX = textX + lineLength < WINDOW_WIDTH_SPRITES ? textX + lineLength : WINDOW_WIDTH_SPRITES;
   int endY = WINDOW_HEIGHT_SPRITES - 1;
 
-  for (y = startY; y < endY; y++)
+  for (y = textY; y < endY; y++)
   {
-    for (x = 2; x < WINDOW_WIDTH_SPRITES - 2; x++)
+    for (x = textX; x < endX; x++)
     {
-      msgIndex = ((y - startY) * msgSpaceWidth) + (x - 2);
+      msgIndex = ((y - textY) * msgSpaceWidth) + (x - 2);
       if (game->ui->message[msgIndex] == '\0')
       {
         return;
@@ -103,7 +103,7 @@ void draw_text(Game *game)
 void draw_ui(Game *game)
 {
   draw_popup(game);
-  draw_text(game);
+  draw_text(game, 2, WINDOW_HEIGHT_SPRITES - POPUP_HEIGHT + 2, WINDOW_WIDTH_SPRITES - 4);
 }
 
 void show_popup(Game *game, char *message)
