@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define GAME_FPS 60
+
 typedef enum GameState {
   LOADING,
   PLAYER_TURN,

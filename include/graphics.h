@@ -7,6 +7,9 @@
 #define WINDOW_HEIGHT_SPRITES 18
 #define WINDOW_WIDTH_SPRITES 32
 #define RENDER_SCALE 3.0
+#define MAX_ANIMATION_COUNT 64
+
+struct Game;
 
 typedef struct GraphicsEngine
 {
@@ -14,7 +17,19 @@ typedef struct GraphicsEngine
   SDL_Renderer *renderer;
   SDL_Texture *spritesheet;
   SDL_Texture *fontsheet;
+  Animation **activeAnimations;
+  int animationCount;
 } GraphicsEngine;
+
+typedef struct Animation
+{
+  int *targetX;
+  int *targetY;
+  Sprite *targetSprite;
+  int currentFrame;
+  int duration;
+  void (*play)(GraphicsEngine *ge, Animation *a);
+} Animation;
 
 typedef struct Sprite
 {
@@ -27,8 +42,8 @@ typedef struct Sprite
 
 GraphicsEngine *initialise_graphics();
 void cleanup_graphics(GraphicsEngine *ge);
-void clear_screen(GraphicsEngine *ge);
+void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targetSprite, int duration, void (*play)(GraphicsEngine *ge, Animation *a));
+void flashing_red_animation(GraphicsEngine *ge, Animation *a);
 void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY);
 void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY);
-void draw_level(GraphicsEngine *ge, Level *level);
-void present_frame(GraphicsEngine *ge);
+void render(struct Game *g);

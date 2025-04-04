@@ -6,6 +6,7 @@ GraphicsEngine *initialise_graphics()
 {
   GraphicsEngine *graphics = (GraphicsEngine *)calloc(1, sizeof(GraphicsEngine));
   int screenWidth, screenHeight;
+  int i;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
   {
@@ -56,11 +57,55 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
+  graphics->activeAnimations = (Animation **)calloc(MAX_ANIMATION_COUNT, sizeof(Animation *));
+  if (!graphics->activeAnimations)
+  {
+    fprintf(stderr, "%s", "Error initialising active animations list");
+    return NULL;
+  }
+
+  graphics->animationCount = 0;
+
   return graphics;
+}
+
+void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targetSprite, int duration, void (*play)(GraphicsEngine *ge, Animation *a))
+{
+  Animation *a = calloc(1, sizeof(Animation));
+  if (a == NULL)
+  {
+    fprintf(stderr, "Error creating animation for x: %d y: %d", *targetX, *targetY);
+    return NULL;
+  }
+
+  a->targetX = targetX;
+  a->targetY = targetY;
+  a->targetSprite = targetSprite;
+  a->currentFrame = 0;
+  a->duration = duration;
+  a->play = play;
+
+  ge->animationCount++;
+  ge->activeAnimations[ge->animationCount] = a;
+}
+
+void flashing_red_animation(GraphicsEngine *ge, Animation *a)
+{
+  if (a->currentFrame % (GAME_FPS / 2) < (GAME_FPS / 4))
+  {
+    SDL_SetTextureColorMod(ge->spritesheet, 255, 1, 1);
+    draw_sprite(ge,
+                a->targetSprite,
+                *a->targetX,
+                *a->targetY);
+    SDL_SetTextureColorMod(ge->spritesheet, 255, 255, 255);
+  }
 }
 
 void cleanup_graphics(GraphicsEngine *ge)
 {
+  int i;
+
   if (!ge)
     return;
 
@@ -68,17 +113,32 @@ void cleanup_graphics(GraphicsEngine *ge)
   {
     SDL_DestroyTexture(ge->spritesheet);
   }
+
   if (ge->fontsheet)
   {
     SDL_DestroyTexture(ge->fontsheet);
   }
+
   if (ge->renderer)
   {
     SDL_DestroyRenderer(ge->renderer);
   }
+
   if (ge->window)
   {
     SDL_DestroyWindow(ge->window);
+  }
+
+  if (ge->activeAnimations)
+  {
+    for (i = 0; i < ge->animationCount; i++)
+    {
+      if (ge->activeAnimations[i] != NULL)
+      {
+        free(ge->activeAnimations[i]);
+      }
+    }
+    free(ge->activeAnimations);
   }
 
   IMG_Quit();
@@ -169,4 +229,15 @@ void draw_level(GraphicsEngine *ge, Level *level)
 void present_frame(GraphicsEngine *ge)
 {
   SDL_RenderPresent(ge->renderer);
+}
+
+void render(Game *g)
+{
+  clear_screen(g->graphics);
+  draw_level(g->graphics, g->level);
+  if (g->ui->visible)
+  {
+    draw_ui(g);
+  }
+  SDL_RenderPresent(g->graphics->renderer);
 }

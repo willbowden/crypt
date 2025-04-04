@@ -218,7 +218,6 @@ void run_game(Game *game)
       switch (game->state)
       {
       case ENEMY_TURN:
-        turns++;
         /** TODO: Process enemy turns here */
         game->state = PLAYER_TURN;
         break;
@@ -231,17 +230,10 @@ void run_game(Game *game)
       default:
         if (e.type == SDL_KEYUP)
         {
-          handle_keypress(game, &e);
           if(game->state == PLAYER_TURN) {
             turns++;
           }
-          clear_screen(game->graphics);
-          draw_level(game->graphics, game->level);
-          if (game->ui->visible)
-          {
-            draw_ui(game);
-          }
-          present_frame(game->graphics);
+          handle_keypress(game, &e);
         }
         break;
       }
@@ -252,10 +244,12 @@ void run_game(Game *game)
           fprintf(stderr, "Error: Something went wrong while saving the game");
           return;
         }
-        turns = 1;
+        turns = 0;
         printf("Game has been saved!\n");
       }
     }
+    render(game);
+    SDL_Delay(1000/GAME_FPS);
   }
 }
 
@@ -272,18 +266,7 @@ int main()
     return 1;
   }
 
-  /*if(player == NULL) {
-    fprintf(stderr, "Error: Something went wrong when creating the player.");
-    return 1;
-  }
-
-  if (initialise_game(game, levelName, player) != 0)
-  {
-    return 1;
-  }*/
-
-  draw_level(game->graphics, game->level);
-  present_frame(game->graphics);
+  render(game);
 
   game->state = PLAYER_TURN;
   run_game(game);

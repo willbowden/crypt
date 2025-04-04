@@ -16,7 +16,7 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
         ability.cooldown = 2;
         enemy->enemy_type = MAGE;
         enemy->health = 30;
-        enemy->attack_damage = 30;
+        enemy->attack = 30;
         enemy->ability = ability;
         break;
     case SPIDER:
@@ -25,7 +25,7 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
         ability.cooldown = 2;
         enemy->enemy_type = SPIDER;
         enemy->health = 15;
-        enemy->attack_damage = 10; /* Implement poison damage for 2 turns */
+        enemy->attack = 10; /* Implement poison damage for 2 turns */
         enemy->ability = ability;
         break;
     case GHOST:
@@ -34,7 +34,7 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
         ability.cooldown = 3;
         enemy->enemy_type = GHOST;
         enemy->health = 15;
-        enemy->attack_damage = 15;
+        enemy->attack = 15;
         enemy->ability = ability;
         break;
     case GOBLIN:
@@ -42,17 +42,18 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
         ability.execute = template_execution;
         enemy->enemy_type = GOBLIN;
         enemy->health = 10;
-        enemy->attack_damage = 20;
+        enemy->attack = 20;
         enemy->ability = ability;
         break;
     case GOON:
         enemy->enemy_type = GOON;
         enemy->health = 10;
-        enemy->attack_damage = 10;
+        enemy->attack = 10;
         enemy->ability = ability;
         break;
     default:
         fprintf(stderr, "%s\n", "Incorrect tileNo provided for enemy creation");
+        return NULL;
         break;
     }
 

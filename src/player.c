@@ -5,6 +5,8 @@ Player *create_player(Sprite *sprite, int health, int worldX, int worldY)
   Player *player = (Player *)malloc(sizeof(Player));
   player->sprite = sprite;
   player->health = health;
+  player->attack = BASE_PLAYER_ATTACK;
+  player->defense = BASE_PLAYER_DEFENSE;
   player->worldX = worldX;
   player->worldY = worldY;
   player->type = PLAYER;
