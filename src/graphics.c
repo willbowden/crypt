@@ -43,6 +43,13 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
+  graphics->fontsheet = IMG_LoadTexture(graphics->renderer, "./assets/fontsheet.png");
+  if (!graphics->fontsheet)
+  {
+    fprintf(stderr, "Font sheet init failed: %s\n", IMG_GetError());
+    return NULL;
+  }
+
   if (SDL_RenderSetScale(graphics->renderer, RENDER_SCALE, RENDER_SCALE) < 0)
   {
     fprintf(stderr, "Setting render scale failed: %s\n", IMG_GetError());
@@ -60,6 +67,10 @@ void cleanup_graphics(GraphicsEngine *ge)
   if (ge->spritesheet)
   {
     SDL_DestroyTexture(ge->spritesheet);
+  }
+  if (ge->fontsheet)
+  {
+    SDL_DestroyTexture(ge->fontsheet);
   }
   if (ge->renderer)
   {
@@ -100,6 +111,24 @@ void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
+void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY)
+{
+  SDL_Rect spriteClip;
+  SDL_Rect destRect;
+
+  spriteClip.x = (c - ' ') * FONT_SIZE;
+  spriteClip.y = 0;
+  spriteClip.w = FONT_SIZE;
+  spriteClip.h = FONT_SIZE;
+
+  destRect.x = worldX * FONT_SIZE;
+  destRect.y = worldY * FONT_SIZE;
+  destRect.w = FONT_SIZE;
+  destRect.h = FONT_SIZE;
+
+  SDL_RenderCopyEx(ge->renderer, ge->fontsheet, &spriteClip, &destRect, 0, NULL, 0);
+}
+
 Sprite *sprite_from_entity(Entity *e)
 {
   switch (e->type)
@@ -135,11 +164,6 @@ void draw_level(GraphicsEngine *ge, Level *level)
       }
     }
   }
-}
-
-void draw_screen(GraphicsEngine *ge, Level *level)
-{
-  draw_level(ge, level);
 }
 
 void present_frame(GraphicsEngine *ge)

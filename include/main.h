@@ -3,8 +3,9 @@
 #include "enemy.h"
 #include "entity_system.h"
 #include "player.h"
-#include "string.h"
+#include "ui.h"
 #include <stdio.h>
+#include <string.h>
 
 typedef enum GameState {
   LOADING,
@@ -22,6 +23,7 @@ typedef struct Game
   Level *level;
   Player *player;
   GameState state;
+  UI *ui;
 } Game;
 
 typedef struct {

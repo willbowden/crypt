@@ -10,6 +10,11 @@ void cleanup_game(Game *game)
     cleanup_graphics(game->graphics);
   }
 
+  if (game->ui)
+  {
+    cleanup_ui(game->ui);
+  }
+
   if (game->level)
   {
     cleanup_level(game->level);
@@ -119,11 +124,20 @@ Game *load_game(const char *saveFilename){
 int initialise_game(Game *game, char *levelName, Player *player)
 {  
   game->graphics = initialise_graphics();
+  game->ui = initialize_ui();
 
+  
   if (!game->graphics)
   {
     fprintf(stderr, "%s\n", "Error initialising graphics engine");
     cleanup_game(game);
+    return 1;
+  }
+
+  if(!game->ui)
+  {
+    cleanup_game(game);
+    fprintf(stderr, "%s\n", "Error initialising UI");
     return 1;
   }
 
@@ -161,6 +175,9 @@ void handle_keypress(Game *game, SDL_Event *e)
       game->state = ENEMY_TURN;
     } else if (key == SDLK_p) {
       game->state = PAUSED;
+    } else if (key == SDLK_o) {
+      show_popup(game, "Hello, World!");
+      game->state = DIALOG_OPEN;
     }
     break;
   case PAUSED:
@@ -175,9 +192,8 @@ void handle_keypress(Game *game, SDL_Event *e)
      */
     break;
   case DIALOG_OPEN:
-    /**
-     * TODO: Handle dialog inputs here
-     */
+    game->state = PLAYER_TURN;
+    dismiss_popup(game);
     break;
   default:
     break;
@@ -221,6 +237,10 @@ void run_game(Game *game)
           }
           clear_screen(game->graphics);
           draw_level(game->graphics, game->level);
+          if (game->ui->visible)
+          {
+            draw_ui(game);
+          }
           present_frame(game->graphics);
         }
         break;
