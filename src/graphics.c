@@ -6,7 +6,6 @@ GraphicsEngine *initialise_graphics()
 {
   GraphicsEngine *graphics = (GraphicsEngine *)calloc(1, sizeof(GraphicsEngine));
   int screenWidth, screenHeight;
-  int i;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
   {
@@ -64,7 +63,7 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
-  graphics->animationCount = 0;
+  graphics->animationSlots = USHRT_MAX;
 
   return graphics;
 }
@@ -72,10 +71,12 @@ GraphicsEngine *initialise_graphics()
 void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targetSprite, int duration, void (*play)(GraphicsEngine *ge, Animation *a))
 {
   Animation *a = calloc(1, sizeof(Animation));
+  int x;
+  int slot = -1;
   if (a == NULL)
   {
     fprintf(stderr, "Error creating animation for x: %d y: %d", *targetX, *targetY);
-    return NULL;
+    return;
   }
 
   a->targetX = targetX;
@@ -85,15 +86,37 @@ void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targe
   a->duration = duration;
   a->play = play;
 
-  ge->animationCount++;
-  ge->activeAnimations[ge->animationCount] = a;
+  /**
+   * Find empty animation slot
+   */
+  for (x = 0; x < MAX_ANIMATION_COUNT; x++)
+  {
+    /* Check binary flags for empty slots (empty if bit = 1) */
+    if (((1 << x) & ge->animationSlots) > 0)
+    {
+      slot = x;
+      /* Set newly occupied slot's bit to 0 */
+      ge->animationSlots = ge->animationSlots ^ (1 << x);
+      break;
+    }
+  }
+
+  if (slot == -1)
+  {
+    fprintf(stderr, "%s", "Animation slots are full!");
+    free(a);
+    return;
+  }
+
+  a->slot = slot;
+  ge->activeAnimations[slot] = a;
 }
 
 void flashing_red_animation(GraphicsEngine *ge, Animation *a)
 {
-  if (a->currentFrame % (GAME_FPS / 2) < (GAME_FPS / 4))
+  if (a->currentFrame % (a->duration / 4) < (a->duration / 8))
   {
-    SDL_SetTextureColorMod(ge->spritesheet, 255, 1, 1);
+    SDL_SetTextureColorMod(ge->spritesheet, 255, 0, 0);
     draw_sprite(ge,
                 a->targetSprite,
                 *a->targetX,
@@ -131,7 +154,7 @@ void cleanup_graphics(GraphicsEngine *ge)
 
   if (ge->activeAnimations)
   {
-    for (i = 0; i < ge->animationCount; i++)
+    for (i = 0; i < MAX_ANIMATION_COUNT; i++)
     {
       if (ge->activeAnimations[i] != NULL)
       {
@@ -231,6 +254,31 @@ void present_frame(GraphicsEngine *ge)
   SDL_RenderPresent(ge->renderer);
 }
 
+void render_animations(GraphicsEngine *ge)
+{
+  int x;
+  /**
+   * Find active animation slots
+   */
+  for (x = 0; x < MAX_ANIMATION_COUNT; x++)
+  {
+    /* Check binary flags for active slots (active if bit = 0) */
+    if (((1 << x) & ge->animationSlots) == 0)
+    {
+      ge->activeAnimations[x]->play(ge, ge->activeAnimations[x]);
+      ge->activeAnimations[x]->currentFrame++;
+
+      /* If the animation is over, free it and open up the slot */
+      if (ge->activeAnimations[x]->currentFrame >= ge->activeAnimations[x]->duration)
+      {
+        free(ge->activeAnimations[x]);
+        ge->activeAnimations[x] = NULL;
+        ge->animationSlots = ge->animationSlots | (1 << x);
+      }
+    }
+  }
+}
+
 void render(Game *g)
 {
   clear_screen(g->graphics);
@@ -239,5 +287,6 @@ void render(Game *g)
   {
     draw_ui(g);
   }
+  render_animations(g->graphics);
   SDL_RenderPresent(g->graphics->renderer);
 }

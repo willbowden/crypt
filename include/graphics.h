@@ -7,9 +7,22 @@
 #define WINDOW_HEIGHT_SPRITES 18
 #define WINDOW_WIDTH_SPRITES 32
 #define RENDER_SCALE 3.0
-#define MAX_ANIMATION_COUNT 64
+#define MAX_ANIMATION_COUNT 16
 
 struct Game;
+struct Sprite;
+struct GraphicsEngine;
+
+typedef struct Animation
+{
+  int *targetX;
+  int *targetY;
+  struct Sprite *targetSprite;
+  int currentFrame;
+  int duration;
+  int slot;
+  void (*play)(struct GraphicsEngine *ge, struct Animation *a);
+} Animation;
 
 typedef struct GraphicsEngine
 {
@@ -18,18 +31,9 @@ typedef struct GraphicsEngine
   SDL_Texture *spritesheet;
   SDL_Texture *fontsheet;
   Animation **activeAnimations;
-  int animationCount;
+  unsigned short int animationSlots;
 } GraphicsEngine;
 
-typedef struct Animation
-{
-  int *targetX;
-  int *targetY;
-  Sprite *targetSprite;
-  int currentFrame;
-  int duration;
-  void (*play)(GraphicsEngine *ge, Animation *a);
-} Animation;
 
 typedef struct Sprite
 {

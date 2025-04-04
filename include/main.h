@@ -6,6 +6,7 @@
 #include "ui.h"
 #include <stdio.h>
 #include <string.h>
+#include "limits.h"
 
 #define GAME_FPS 60
 
