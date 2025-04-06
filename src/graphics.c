@@ -114,7 +114,7 @@ void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targe
 
 void flashing_red_animation(GraphicsEngine *ge, Animation *a)
 {
-  if (a->currentFrame % (a->duration / 4) < (a->duration / 8))
+  if (a->currentFrame % (a->duration / 2) < (a->duration / 4))
   {
     SDL_SetTextureColorMod(ge->spritesheet, 255, 0, 0);
     draw_sprite(ge,

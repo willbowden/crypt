@@ -206,7 +206,7 @@ void handle_keypress(Game *game, SDL_Event *e)
           &game->player->worldX,
           &game->player->worldY,
           game->player->sprite,
-          GAME_FPS/2,
+          GAME_FPS/4,
           &flashing_red_animation);
     }
     break;
@@ -242,7 +242,7 @@ void run_game(Game *game)
     a = SDL_GetTicks();
     delta = a - b;
 
-    if (delta > 1.0 / GAME_FPS)
+    if (delta > 1000.0 / GAME_FPS)
     {
       b = a;  
       while (SDL_PollEvent(&e))
@@ -265,7 +265,7 @@ void run_game(Game *game)
          *  the player's key input must be handled.
          */
         default:
-          if (e.type == SDL_KEYUP)
+          if (e.type == SDL_KEYDOWN)
           {
             if (game->state == PLAYER_TURN)
             {
@@ -287,9 +287,8 @@ void run_game(Game *game)
           turns = 0;
         }
       }
+      render(game);
     }
-    render(game);
-    SDL_Delay(1000 / GAME_FPS);
   }
 }
 
