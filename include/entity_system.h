@@ -1,3 +1,5 @@
+struct Game;
+
 typedef enum {
     INVALID,
     ENEMY, 
@@ -19,6 +21,7 @@ typedef struct Player {
 typedef struct Interactable {
     EntityType type;
     Sprite *sprite;
+    void (*interact)(struct Game *g);
 } Interactable;
 
 typedef struct Enemy {

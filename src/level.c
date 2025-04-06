@@ -59,7 +59,7 @@ void cleanup_level(Level *level)
   free(level);
 }
 
-Level *create_empty_level()
+Level *create_empty_level(int levelNumber)
 {
   int y;
 
@@ -100,6 +100,8 @@ Level *create_empty_level()
       return NULL;
     }
   }
+
+  level->levelNumber = levelNumber;
 
   return level;
 }
@@ -227,12 +229,12 @@ int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_F
   return 0;
 }
 
-Level *load_level(char *levelName)
+Level *load_level(int levelNumber)
 {
-  char *levelPrefix = (char *)malloc((strlen(levelName) + 15) * sizeof(char));
-  Level *level = create_empty_level();
+  char levelName[37];
+  Level *level = create_empty_level(levelNumber);
 
-  strcat(levelPrefix, levelName);
+  sprintf(levelName, "./assets/Levels/Level%d", levelNumber);
 
   if (load_layer(
           (LEVEL_LAYER)level->background,
@@ -240,7 +242,6 @@ Level *load_level(char *levelName)
           "_Background.csv",
           (ENTITY_FACTORY)sprite_from_number) < 0)
   {
-    free(levelPrefix);
     return NULL;
   }
 
@@ -250,10 +251,8 @@ Level *load_level(char *levelName)
           "_Foreground.csv",
           (ENTITY_FACTORY)entity_from_number) < 0)
   {
-    free(levelPrefix);
     return NULL;
   }
 
-  free(levelPrefix);
   return level;
 }

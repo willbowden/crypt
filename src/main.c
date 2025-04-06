@@ -29,7 +29,7 @@ void cleanup_game(Game *game)
 }
 
 /* TODO: Save with level completed function is implemented*/
-int save_game(Game *game, const char *levelName, const char *saveFilename)
+int save_game(Game *game, int levelNumber, const char *saveFilename)
 {
   int x, y;
   SaveData data;
@@ -43,8 +43,7 @@ int save_game(Game *game, const char *levelName, const char *saveFilename)
   data.playerX = game->player->worldX;
   data.playerY = game->player->worldY;
   data.playerHealth = game->player->health;
-  strncpy(data.levelName, levelName, strlen(levelName));
-  data.levelName[strlen(levelName)] = '\0';
+  data.levelNumber = levelNumber;
 
   for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
   {
@@ -88,7 +87,7 @@ Game *load_game(const char *saveFilename)
     loadData.playerX = 29;
     loadData.playerY = 5;
     loadData.playerHealth = 100;
-    strcpy(loadData.levelName, "./assets/Levels/Level1");
+    loadData.levelNumber = 1;
   }
   else
   {
@@ -103,7 +102,7 @@ Game *load_game(const char *saveFilename)
     return NULL;
   }
 
-  if (initialise_game(game, loadData.levelName, player))
+  if (initialise_game(game, loadData.levelNumber, player))
   {
     fprintf(stderr, "Error: Failed to initialize game.");
     return NULL;
@@ -143,7 +142,7 @@ Game *load_game(const char *saveFilename)
   return game;
 }
 
-int initialise_game(Game *game, char *levelName, Player *player)
+int initialise_game(Game *game, int levelNumber, Player *player)
 {
   game->graphics = initialise_graphics();
   game->ui = initialize_ui();
@@ -162,7 +161,7 @@ int initialise_game(Game *game, char *levelName, Player *player)
     return 1;
   }
 
-  game->level = load_level(levelName);
+  game->level = load_level(levelNumber);
 
   if (!game->level)
   {
@@ -198,16 +197,6 @@ void handle_keypress(Game *game, SDL_Event *e)
     else if (key == SDLK_p)
     {
       game->state = PAUSED;
-    }
-    else if (key == SDLK_o)
-    {
-      add_animation(
-          game->graphics,
-          &game->player->worldX,
-          &game->player->worldY,
-          game->player->sprite,
-          GAME_FPS/4,
-          &flashing_red_animation);
     }
     break;
   case PAUSED:
@@ -279,7 +268,7 @@ void run_game(Game *game)
         if (turns % 5 == 0)
         {
           /* Make sure to replace the levelName and saveFile name with their respective variables to make it modular. */
-          if (save_game(game, "./assets/Levels/Level1", "./saves/save1"))
+          if (save_game(game, game->level->levelNumber, "./saves/save1"))
           { /* Save every 5 turns */
             fprintf(stderr, "Error: Something went wrong while saving the game");
             return;
@@ -296,7 +285,6 @@ void run_game(Game *game)
 int main()
 {
   Game *game = load_game("./saves/save1");
-  char *levelName = "./assets/Levels/Level1";
 
   game->state = LOADING;
 
@@ -311,7 +299,7 @@ int main()
   game->state = PLAYER_TURN;
   run_game(game);
 
-  if (save_game(game, levelName, "./saves/save1"))
+  if (save_game(game, game->level->levelNumber, "./saves/save1"))
   {
     fprintf(stderr, "Error: Something went wrong while saving the game");
     return 1;
