@@ -56,11 +56,79 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
+  graphics->activeAnimations = (Animation **)calloc(MAX_ANIMATION_COUNT, sizeof(Animation *));
+  if (!graphics->activeAnimations)
+  {
+    fprintf(stderr, "%s", "Error initialising active animations list");
+    return NULL;
+  }
+
+  graphics->animationSlots = USHRT_MAX;
+
   return graphics;
+}
+
+void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targetSprite, int duration, void (*play)(GraphicsEngine *ge, Animation *a))
+{
+  Animation *a = calloc(1, sizeof(Animation));
+  int x;
+  int slot = -1;
+  if (a == NULL)
+  {
+    fprintf(stderr, "Error creating animation for x: %d y: %d", *targetX, *targetY);
+    return;
+  }
+
+  a->targetX = targetX;
+  a->targetY = targetY;
+  a->targetSprite = targetSprite;
+  a->currentFrame = 0;
+  a->duration = duration;
+  a->play = play;
+
+  /**
+   * Find empty animation slot
+   */
+  for (x = 0; x < MAX_ANIMATION_COUNT; x++)
+  {
+    /* Check binary flags for empty slots (empty if bit = 1) */
+    if (((1 << x) & ge->animationSlots) > 0)
+    {
+      slot = x;
+      /* Set newly occupied slot's bit to 0 */
+      ge->animationSlots = ge->animationSlots ^ (1 << x);
+      break;
+    }
+  }
+
+  if (slot == -1)
+  {
+    fprintf(stderr, "%s", "Animation slots are full!");
+    free(a);
+    return;
+  }
+
+  a->slot = slot;
+  ge->activeAnimations[slot] = a;
+}
+
+void flashing_red_animation(GraphicsEngine *ge, Animation *a)
+{
+  if (a->currentFrame % (a->duration / 2) < (a->duration / 4))
+  {
+    SDL_SetTextureColorMod(ge->spritesheet, 255, 0, 0);
+    draw_sprite(ge,
+                a->targetSprite,
+                *a->targetX,
+                *a->targetY);
+    SDL_SetTextureColorMod(ge->spritesheet, 255, 255, 255);
+  }
 }
 
 void cleanup_graphics(GraphicsEngine *ge)
 {
+  int i;
+
   if (!ge)
     return;
 
@@ -68,17 +136,32 @@ void cleanup_graphics(GraphicsEngine *ge)
   {
     SDL_DestroyTexture(ge->spritesheet);
   }
+
   if (ge->fontsheet)
   {
     SDL_DestroyTexture(ge->fontsheet);
   }
+
   if (ge->renderer)
   {
     SDL_DestroyRenderer(ge->renderer);
   }
+
   if (ge->window)
   {
     SDL_DestroyWindow(ge->window);
+  }
+
+  if (ge->activeAnimations)
+  {
+    for (i = 0; i < MAX_ANIMATION_COUNT; i++)
+    {
+      if (ge->activeAnimations[i] != NULL)
+      {
+        free(ge->activeAnimations[i]);
+      }
+    }
+    free(ge->activeAnimations);
   }
 
   IMG_Quit();
@@ -169,4 +252,41 @@ void draw_level(GraphicsEngine *ge, Level *level)
 void present_frame(GraphicsEngine *ge)
 {
   SDL_RenderPresent(ge->renderer);
+}
+
+void render_animations(GraphicsEngine *ge)
+{
+  int x;
+  /**
+   * Find active animation slots
+   */
+  for (x = 0; x < MAX_ANIMATION_COUNT; x++)
+  {
+    /* Check binary flags for active slots (active if bit = 0) */
+    if (((1 << x) & ge->animationSlots) == 0)
+    {
+      ge->activeAnimations[x]->play(ge, ge->activeAnimations[x]);
+      ge->activeAnimations[x]->currentFrame++;
+
+      /* If the animation is over, free it and open up the slot */
+      if (ge->activeAnimations[x]->currentFrame >= ge->activeAnimations[x]->duration)
+      {
+        free(ge->activeAnimations[x]);
+        ge->activeAnimations[x] = NULL;
+        ge->animationSlots = ge->animationSlots | (1 << x);
+      }
+    }
+  }
+}
+
+void render(Game *g)
+{
+  clear_screen(g->graphics);
+  draw_level(g->graphics, g->level);
+  if (g->ui->visible)
+  {
+    draw_ui(g);
+  }
+  render_animations(g->graphics);
+  SDL_RenderPresent(g->graphics->renderer);
 }

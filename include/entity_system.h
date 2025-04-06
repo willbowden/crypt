@@ -12,6 +12,8 @@ typedef struct Player {
     int worldX;
     int worldY;
     int health;
+    int attack;
+    int defense;
 } Player;
 
 typedef struct Interactable {
@@ -24,7 +26,8 @@ typedef struct Enemy {
     EnemyType enemy_type;
     Sprite *sprite;
     int health;
-    int attack_damage;
+    int attack;
+    int defense;
     SpecialAbility ability;
 } Enemy;
 
