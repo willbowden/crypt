@@ -59,11 +59,19 @@ void cleanup_level(Level *level)
   free(level);
 }
 
+LevelState create_empty_level_state()
+{
+  LevelState s;
+  s.flags = 0;
+  return s;
+}
+
 Level *create_empty_level(int levelNumber)
 {
   int y;
 
   Level *level = (Level *)calloc(1, sizeof(Level));
+  LevelState levelState = create_empty_level_state();
   if (!level)
   {
     fprintf(stderr, "%s\n", "Error allocating mem for empty level.");
@@ -101,6 +109,7 @@ Level *create_empty_level(int levelNumber)
     }
   }
 
+  level->levelState = levelState;
   level->levelNumber = levelNumber;
 
   return level;

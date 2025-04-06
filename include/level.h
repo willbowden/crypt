@@ -1,9 +1,15 @@
 struct Sprite;
 struct Entity;
 
+typedef struct LevelState
+{
+  unsigned int flags;
+} LevelState;
+
 typedef struct Level
 {
   int levelNumber;
+  LevelState levelState;
   struct Sprite ***background;
   /**
    * Use generic tiles for all other map elements,
@@ -15,6 +21,7 @@ typedef struct Level
 typedef void *(*ENTITY_FACTORY)(int);
 typedef void ***LEVEL_LAYER;
 
+LevelState create_empty_level_state();
 void cleanup_background(Level *level);
 void cleanup_foreground(Level *level);
 void cleanup_level(Level *level);

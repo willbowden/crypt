@@ -44,6 +44,7 @@ int save_game(Game *game, int levelNumber, const char *saveFilename)
   data.playerY = game->player->worldY;
   data.playerHealth = game->player->health;
   data.levelNumber = levelNumber;
+  data.levelState = game->level->levelState;
 
   for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
   {
@@ -88,6 +89,7 @@ Game *load_game(const char *saveFilename)
     loadData.playerY = 5;
     loadData.playerHealth = 100;
     loadData.levelNumber = 1;
+    loadData.levelState = create_empty_level_state();
   }
   else
   {
