@@ -194,7 +194,6 @@ void handle_keypress(Game *game, SDL_Event *e)
     if (key >= SDLK_RIGHT && key <= SDLK_UP)
     {
       move_player(game, key);
-      game->state = ENEMY_TURN;
     }
     else if (key == SDLK_p)
     {

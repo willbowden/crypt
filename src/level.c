@@ -115,9 +115,6 @@ Level *create_empty_level(int levelNumber)
   return level;
 }
 
-/**
- * TODO: Calculate rotation/flipping from bit flags
- */
 Sprite *sprite_from_number(int tileNo)
 {
   int spriteX, spriteY, hflip, vflip, dflip;
@@ -134,7 +131,7 @@ Sprite *sprite_from_number(int tileNo)
 
   tileNo &= ~(1 << 31 | 1 << 30 | 1 << 29);
 
-  spriteX = ((tileNo + 1) % SPRITESHEET_WIDTH_SPRITES) - 1;
+  spriteX = ((tileNo) % SPRITESHEET_WIDTH_SPRITES);
   spriteY = (int)tileNo / SPRITESHEET_WIDTH_SPRITES;
 
   newSprite = (Sprite *)calloc(1, sizeof(Sprite));
@@ -142,10 +139,6 @@ Sprite *sprite_from_number(int tileNo)
   newSprite->spriteY = spriteY;
   newSprite->angle = 0;
   newSprite->flip = SDL_FLIP_NONE;
-
-  /**
-   * TODO: Still figuring out flips
-   */
 
   if (dflip)
   {
@@ -192,6 +185,10 @@ Entity *entity_from_number(int tileNo)
    * For now, all tiles are assumed to be ForegroundTiles
    */
 
+  if (tileNo == 838) 
+  {
+    return (Entity *)create_interactable(sprite, &progress_level);
+  }
 
   return (Entity *)create_foreground_tile(sprite, 0);
 }
@@ -224,7 +221,7 @@ int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_F
       {
         if (successfulReads < WINDOW_HEIGHT_SPRITES * WINDOW_WIDTH_SPRITES)
         {
-          fprintf(stderr, "Error reading background tile at location x:%d y%d:\n", x, y);
+          fprintf(stderr, "Error reading level tile at location x:%d y%d:\n", x, y);
           fclose(file);
           return -1;
         }
