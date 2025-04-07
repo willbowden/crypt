@@ -29,6 +29,8 @@ typedef struct Enemy {
     int attack;
     int defense;
     SpecialAbility ability;
+    int worldX;
+    int worldY;
 } Enemy;
 
 typedef struct ForegroundTile {

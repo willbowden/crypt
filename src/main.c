@@ -296,15 +296,25 @@ void run_game(Game *game)
 int main()
 {
   /* Position of our test enemy */
-  int enemyX = 0; 
+  int enemyX = 20; 
   int enemyY = 5;
+  Enemy *enemy;
 
   Game *game = load_game("./saves/save1");
   char *levelName = "./assets/Levels/Level1";
 
   game->state = LOADING;
+
   /* Loading our test enemy */
-  game->level->foreground[enemyY][enemyX] = (Entity *) add_enemy(game, MAGE);
+  enemy = add_enemy(game, MAGE);
+  if (enemy == NULL)
+  {
+    fprintf(stderr, "Error: Could not create enemy\n");
+    return 1;
+  }
+  enemy->worldX = enemyX;
+  enemy->worldY = enemyY;
+  game->level->foreground[enemyY][enemyX] = (Entity *)enemy;
   
   if(game == NULL) {
     fprintf(stderr, "Error: Unable to initialize game");
