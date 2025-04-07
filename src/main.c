@@ -262,10 +262,16 @@ void run_game(Game *game)
 /* Saving on quit and saving periodically between turns */
 int main()
 {
+  /* Position of our test enemy */
+  int enemyX = 0; 
+  int enemyY = 5;
+
   Game *game = load_game("./saves/save1");
   char *levelName = "./assets/Levels/Level1";
   
   game->state = LOADING;
+  /* Loading our test enemy */
+  game->level->foreground[enemyY][enemyX] = (Entity *) add_enemy(game, MAGE);
   
   if(game == NULL) {
     fprintf(stderr, "Error: Unable to initialize game");
