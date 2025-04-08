@@ -68,7 +68,7 @@ void move_player(Game *game, SDL_KeyCode key)
     else if (game->level->foreground[newY][newX]->type == INTERACTABLE)
     {
       Interactable *interactable = (Interactable *)game->level->foreground[newY][newX];
-      interactable->interact(game);
+      interactable->interact(game, newX, newY);
     }
   }
 }

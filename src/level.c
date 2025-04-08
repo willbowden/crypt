@@ -185,12 +185,16 @@ Entity *entity_from_number(int tileNo)
    * For now, all tiles are assumed to be ForegroundTiles
    */
 
-  if (tileNo == 838) 
+  switch (tileNo)
   {
-    return (Entity *)create_interactable(sprite, &progress_level);
+    case LEVEL1_DOOR:
+      return (Entity *)create_interactable(sprite, &progress_level);
+    case LEVEL1_SWORD:
+      return (Entity *)create_interactable(sprite, &pickup_equipment);
+    default:
+      return (Entity *)create_foreground_tile(sprite, 0);
   }
 
-  return (Entity *)create_foreground_tile(sprite, 0);
 }
 
 int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)

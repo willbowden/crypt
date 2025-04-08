@@ -21,7 +21,7 @@ typedef struct Player {
 typedef struct Interactable {
     EntityType type;
     Sprite *sprite;
-    void (*interact)(struct Game *g);
+    void (*interact)(struct Game *g, int x, int y);
 } Interactable;
 
 typedef struct Enemy {
@@ -46,7 +46,7 @@ typedef struct Entity {
 
 Player * create_player(Sprite *sprite, int health, int worldX, int worldY);
 Enemy * create_enemy(Sprite *sprite);
-Interactable * create_interactable(Sprite *sprite, void (*interact)(struct Game *g));
+Interactable * create_interactable(Sprite *sprite, void (*interact)(struct Game *g, int x, int y));
 ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);
 
 void free_enemy(Enemy *enemy);

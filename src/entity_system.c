@@ -10,7 +10,7 @@ Enemy *create_enemy(Sprite *sprite)
     return enemy;
 }
 
-Interactable *create_interactable(Sprite *sprite, void (*interact)(struct Game *g))
+Interactable *create_interactable(Sprite *sprite, void (*interact)(struct Game *g, int x, int y))
 {
     Interactable *interactable = (Interactable *)malloc(sizeof(Interactable));
     interactable->interact = interact;
