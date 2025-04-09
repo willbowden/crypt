@@ -9,11 +9,11 @@ void cleanup_background(Level *level)
 
   if (level->background)
   {
-    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+    for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
     {
       if (level->background[y])
       {
-        for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+        for (x = 0; x < WORLD_WIDTH_SPRITES; x++)
         {
           /* Free the background sprites */
           if (level->background[y][x])
@@ -36,7 +36,7 @@ void cleanup_foreground(Level *level)
 
   if (level->foreground)
   {
-    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+    for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
     {
       if (level->foreground[y])
       {
@@ -78,30 +78,30 @@ Level *create_empty_level(int levelNumber)
     return NULL;
   }
 
-  level->background = (Sprite ***)calloc(WINDOW_HEIGHT_SPRITES, sizeof(Sprite **));
+  level->background = (Sprite ***)calloc(WORLD_HEIGHT_SPRITES, sizeof(Sprite **));
   if (!level->background)
   {
     fprintf(stderr, "%s\n", "Error allocating mem for empty background layer");
     return NULL;
   }
 
-  level->foreground = (Entity ***)calloc(WINDOW_HEIGHT_SPRITES, sizeof(Entity **));
+  level->foreground = (Entity ***)calloc(WORLD_HEIGHT_SPRITES, sizeof(Entity **));
   if (!level->foreground)
   {
     fprintf(stderr, "%s\n", "Error allocating mem for empty foreground layer");
     return NULL;
   }
 
-  for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+  for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
   {
-    level->background[y] = (Sprite **)calloc(WINDOW_WIDTH_SPRITES, sizeof(Sprite *));
+    level->background[y] = (Sprite **)calloc(WORLD_WIDTH_SPRITES, sizeof(Sprite *));
     if (!level->background[y])
     {
       fprintf(stderr, "Error allocating mem for empty background row %d\n", y);
       return NULL;
     }
 
-    level->foreground[y] = (Entity **)calloc(WINDOW_WIDTH_SPRITES, sizeof(Entity *));
+    level->foreground[y] = (Entity **)calloc(WORLD_WIDTH_SPRITES, sizeof(Entity *));
     if (!level->foreground[y])
     {
       fprintf(stderr, "Error allocating mem for empty foreground row %d\n", y);
@@ -217,13 +217,13 @@ int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_F
 
   free(levelName);
 
-  for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+  for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
   {
-    for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+    for (x = 0; x < WORLD_WIDTH_SPRITES; x++)
     {
       if (fscanf(file, "%d,", &tileNo) == EOF)
       {
-        if (successfulReads < WINDOW_HEIGHT_SPRITES * WINDOW_WIDTH_SPRITES)
+        if (successfulReads < WORLD_HEIGHT_SPRITES * WORLD_WIDTH_SPRITES)
         {
           fprintf(stderr, "Error reading level tile at location x:%d y%d:\n", x, y);
           fclose(file);

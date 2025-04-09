@@ -55,9 +55,9 @@ void move_player(Game *game, SDL_KeyCode key)
   }
 
   if (
-      newX < WINDOW_WIDTH_SPRITES &&
+      newX < WORLD_WIDTH_SPRITES &&
       newX >= 0 &&
-      newY < WINDOW_HEIGHT_SPRITES &&
+      newY < WORLD_HEIGHT_SPRITES &&
       newY >= 0)
   {
     if (game->level->foreground[newY][newX] == NULL)

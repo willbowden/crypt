@@ -36,7 +36,7 @@ typedef struct {
   int playerHealth;
   int levelNumber;
   LevelState levelState;
-  Entity foregroundGrid[WINDOW_HEIGHT_SPRITES][WINDOW_WIDTH_SPRITES];
+  Entity foregroundGrid[WORLD_HEIGHT_SPRITES][WORLD_WIDTH_SPRITES];
 } SaveData;
 
 void cleanup_game(Game *game);

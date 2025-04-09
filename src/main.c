@@ -46,9 +46,9 @@ int save_game(Game *game, int levelNumber, const char *saveFilename)
   data.levelNumber = levelNumber;
   data.levelState = game->level->levelState;
 
-  for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+  for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
   {
-    for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+    for (x = 0; x < WORLD_WIDTH_SPRITES; x++)
     {
       if (game->level->foreground[y][x] == NULL)
       {
@@ -114,9 +114,9 @@ Game *load_game(const char *saveFilename)
 
   if (found)
   {
-    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+    for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
     {
-      for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+      for (x = 0; x < WORLD_WIDTH_SPRITES; x++)
       {
         if (loadData.foregroundGrid[y][x].type == INVALID)
         {

@@ -17,11 +17,11 @@ void cleanup_ui(UI *ui)
   free(ui);
 }
 
-void draw_popup(Game *game)
+void draw_popup_background(Game *game)
 {
-  int endX = WINDOW_WIDTH_SPRITES - 1;
-  int startY = WINDOW_HEIGHT_SPRITES - POPUP_HEIGHT;
-  int endY = WINDOW_HEIGHT_SPRITES - 1;
+  int endX = WORLD_WIDTH_SPRITES - 1;
+  int startY = WORLD_HEIGHT_SPRITES - POPUP_HEIGHT;
+  int endY = WORLD_HEIGHT_SPRITES - 1;
   int cornerXs[] = {18, 20, 18, 20};
   int cornerYs[] = {0, 0, 2, 2};
   int edgeXs[] = {19, 20, 19, 18};
@@ -75,35 +75,41 @@ void draw_popup(Game *game)
   }
 }
 
-void draw_text(Game *game, int textX, int textY, int lineLength)
+void draw_text(Game *game, int worldX, int worldY, int lineLength, char *message)
 {
   int x, y;
   int msgIndex = 0;
-  int msgSpaceWidth = WINDOW_WIDTH_SPRITES - 4;
-  int endX = textX + lineLength < WINDOW_WIDTH_SPRITES ? textX + lineLength : WINDOW_WIDTH_SPRITES;
-  int endY = WINDOW_HEIGHT_SPRITES - 1;
+  int msgSpaceWidth = WORLD_WIDTH_SPRITES - 4;
+  int endX = worldX + lineLength < WORLD_WIDTH_SPRITES ? worldX + lineLength : WORLD_WIDTH_SPRITES;
+  int endY = WORLD_HEIGHT_SPRITES - 1;
 
-  for (y = textY; y < endY; y++)
+  for (y = worldY; y < endY; y++)
   {
-    for (x = textX; x < endX; x++)
+    for (x = 0; x < endX; x++)
     {
-      msgIndex = ((y - textY) * msgSpaceWidth) + (x - 2);
-      if (game->ui->message[msgIndex] == '\0')
+      msgIndex = ((y - worldY) * msgSpaceWidth) + x;
+      if (message[msgIndex] == '\0')
       {
         return;
       }
       else
       {
-        draw_ascii_char(game->graphics, game->ui->message[msgIndex], x, y);
+        draw_ascii_char(game->graphics, message[msgIndex], x + worldX, y);
       }
     }
   }
 }
 
-void draw_ui(Game *game)
+void draw_dialog(Game *game)
 {
-  draw_popup(game);
-  draw_text(game, 2, WINDOW_HEIGHT_SPRITES - POPUP_HEIGHT + 2, WINDOW_WIDTH_SPRITES - 4);
+  draw_popup_background(game);
+  draw_text(game, 2, WORLD_HEIGHT_SPRITES - POPUP_HEIGHT + 1 + HUD_HEIGHT_SPRITES, WORLD_WIDTH_SPRITES - 4, game->ui->message);
+}
+
+void draw_hud(Game *game)
+{
+  char *s = "Health:10";
+  draw_text(game, 1, 1, WORLD_WIDTH_SPRITES - 4, s);
 }
 
 void show_popup(Game *game, char *message)
