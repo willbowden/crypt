@@ -145,15 +145,12 @@ Game *load_game(const char *saveFilename)
     return NULL;
   }
 
-  printf("The game has been created");
   player = create_player(sprite_from_number(25), 100, 29, 5); 
   if (player == NULL)
   {
     fprintf(stderr, "Error: Could not create player");
     return NULL;
   }
-
-  printf("The playuer has been created");
 
   if (file == NULL)
   {
@@ -168,7 +165,6 @@ Game *load_game(const char *saveFilename)
     fread(&header, sizeof(SaveHeader), 1, file);
     *player = header.player;
     game->state = PLAYER_TURN;
-    printf("The save header file has been loaded");
   }
 
   if (initialise_game(game, header.levelNumber, player))
@@ -177,7 +173,6 @@ Game *load_game(const char *saveFilename)
     return NULL;
   }
 
-  printf("Game initialized");
   add_player(game, player->worldX, player->worldY);
 
   /* Initialize the Entities in the foreground */
@@ -211,7 +206,6 @@ Game *load_game(const char *saveFilename)
         break;
       case INTERACTABLE:
         fread(&interactableData, sizeof(InteractableData), 1, file);
-        printf("This is the interactable tile no: %d", interactableData.type);
         interactable = create_interactable(sprite_from_number(interactableData.type), interactableData.funcId, interactableData.type);
         game->level->foreground[data.y][data.x] = (Entity *) interactable;
         break;
