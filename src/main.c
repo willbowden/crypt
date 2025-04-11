@@ -1,6 +1,14 @@
 #include "main.h"
 #include "enemy.h"
 #include "entity_system.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+#define pathSeparator '/'
+
+/* Plan: 
+- First make a header and store it
+- Then save the foreground data
+- When you load this foreground data, go through all of the items in the grid and if there doesn't exist an element in that x, y coordinate, give it null*/
 
 void cleanup_game(Game *game)
 {
@@ -30,49 +38,104 @@ void cleanup_game(Game *game)
   free(game);
 }
 
+void create_directories(const char *file_path) {
+  char *dir_path = (char *) malloc(strlen(file_path) + 1);
+  char *next_sep = strchr(file_path, '/');
+  while (next_sep != NULL) {
+    int dir_path_len = next_sep - file_path;
+    memcpy(dir_path, file_path, dir_path_len);
+    dir_path[dir_path_len] = '\0';
+    mkdir(dir_path, S_IRWXU|S_IRWXG|S_IROTH);
+    next_sep = strchr(next_sep + 1, pathSeparator);
+  }
+  free(dir_path);
+}
+
 /* TODO: Save with level completed function is implemented*/
 int save_game(Game *game, int levelNumber, const char *saveFilename)
 {
   int x, y;
-  SaveData data;
-  FILE *file = fopen(saveFilename, "wb");
+  int entityCount;
+  SaveHeader header;
+  FILE *file;
+  ForegroundDataHeader data;
+  InteractableData interactableData;
+  EnemyData enemyData;
+  Enemy *enemy;
+  Interactable *interactable;
+  
+  create_directories(saveFilename);
+  
+  file = fopen(saveFilename, "wb");
 
   if (file == NULL)
   {
     fprintf(stderr, "Error: Could not create/open the save file");
     return 1;
   }
-  data.playerX = game->player->worldX;
-  data.playerY = game->player->worldY;
-  data.playerHealth = game->player->health;
-  data.levelNumber = levelNumber;
-  data.levelState = game->level->levelState;
+  header.player = *(game->player);
+  header.levelNumber = levelNumber;
+  header.levelState = game->level->levelState;
+
+  entityCount = 0;
+  for(y = 0; y < WINDOW_HEIGHT_SPRITES; y++){
+    for(x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
+      if(game->level->foreground[y][x] != NULL) {
+        entityCount++;
+      }
+    }
+  }
+
+  header.numEntities = entityCount;
+  fwrite(&header, sizeof(SaveHeader), 1, file);
 
   for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
   {
     for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
     {
-      if (game->level->foreground[y][x] == NULL)
-      {
-        data.foregroundGrid[y][x].type = INVALID;
-      }
-      else
-      {
-        data.foregroundGrid[y][x] = *(game->level->foreground[y][x]);
+      if(game->level->foreground[y][x] != NULL) {
+        data.x = x;
+        data.y = y;
+        data.type = game->level->foreground[y][x]->type;
+        fwrite(&data, sizeof(ForegroundDataHeader), 1, file);
+
+        /* Player data not considered since it is already stored in the header. */
+        switch (game->level->foreground[y][x]->type)
+        {
+        case ENEMY:
+          enemy = (Enemy *) game->level->foreground[y][x];
+          enemyData.enemyType = enemy->enemy_type;
+          enemyData.health = enemy->health;
+          fwrite(&enemyData, sizeof(EnemyData), 1, file);
+          break;
+        case INTERACTABLE:
+          interactable = (Interactable *) game->level->foreground[y][x];
+          interactableData.funcId = interactable->funcId;
+          interactableData.type = interactable->interactableType;
+          fwrite(&interactableData, sizeof(InteractableData), 1, file);
+          break;
+        
+        default:
+          break;
+        }
       }
     }
   }
-  fwrite(&data, sizeof(SaveData), 1, file);
   fclose(file);
   return 0;
 }
 
 Game *load_game(const char *saveFilename)
 {
-  int x, y;
+  int x, y, i;
   int found = 1; /* Variable to check if the load_game function found the save file */
-  SaveData loadData;
+  SaveHeader header;
+  ForegroundDataHeader data;
+  InteractableData interactableData;
+  EnemyData enemyData;
   Player *player;
+  Enemy *enemy;
+  Interactable *interactable;
   FILE *file = fopen(saveFilename, "rb");
   Game *game = (Game *)malloc(sizeof(Game));
 
@@ -82,63 +145,78 @@ Game *load_game(const char *saveFilename)
     return NULL;
   }
 
-  if (file == NULL)
-  {
-    fprintf(stderr, "Error: Could not open the save file. Starting a new game.");
-    game->state = LOADING;
-    found = 0;
-    loadData.playerX = 29;
-    loadData.playerY = 5;
-    loadData.playerHealth = 100;
-    loadData.levelNumber = 1;
-    loadData.levelState = create_empty_level_state();
-  }
-  else
-  {
-    fread(&loadData, sizeof(SaveData), 1, file);
-  }
-
-  player = create_player(sprite_from_number(25), loadData.playerHealth, loadData.playerX, loadData.playerY);
-
+  printf("The game has been created");
+  player = create_player(sprite_from_number(25), 100, 29, 5); 
   if (player == NULL)
   {
     fprintf(stderr, "Error: Could not create player");
     return NULL;
   }
 
-  if (initialise_game(game, loadData.levelNumber, player))
+  printf("The playuer has been created");
+
+  if (file == NULL)
+  {
+    fprintf(stderr, "Error: Could not open the save file. Starting a new game.");
+    game->state = LOADING;
+    found = 0;
+    header.levelNumber = 1;
+    header.levelState = create_empty_level_state();
+  }
+  else
+  {
+    fread(&header, sizeof(SaveHeader), 1, file);
+    *player = header.player;
+    game->state = PLAYER_TURN;
+    printf("The save header file has been loaded");
+  }
+
+  if (initialise_game(game, header.levelNumber, player))
   {
     fprintf(stderr, "Error: Failed to initialize game.");
     return NULL;
   }
 
-  add_player(game, loadData.playerX, loadData.playerY);
+  printf("Game initialized");
+  add_player(game, player->worldX, player->worldY);
 
+  /* Initialize the Entities in the foreground */
   if (found)
   {
-    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
-    {
-      for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+    /* Resetting all interactables to NULL for accurate reload later */
+    for(y = 0; y < WINDOW_HEIGHT_SPRITES; y++) {
+      for(x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
+        if(game->level->foreground[y][x] != NULL && game->level->foreground[y][x]->type == INTERACTABLE) {
+          game->level->foreground[y][x] = NULL; 
+        }
+      }
+    }
+
+    for(i = 0; i < header.numEntities; i++) {
+      fread(&data, sizeof(ForegroundDataHeader), 1, file);
+
+      switch (data.type)
       {
-        if (loadData.foregroundGrid[y][x].type == INVALID)
-        {
-          game->level->foreground[y][x] = NULL;
+      case ENEMY:
+        fread(&enemyData, sizeof(EnemyData), 1, file);
+        enemy = add_enemy(game, enemyData.enemyType);
+        if(enemy == NULL) {
+          fprintf(stderr, "Error: Could not create enemy from save data\n");
         }
-        else
-        {
-          if (game->level->foreground[y][x] == NULL)
-          {
-            game->level->foreground[y][x] = (Entity *)malloc(sizeof(Entity));
-          }
-
-          if (game->level->foreground[y][x] == NULL)
-          {
-            fprintf(stderr, "Error: Could not allocate memory for foreground entity\n");
-            return NULL;
-          }
-
-          *(game->level->foreground[y][x]) = loadData.foregroundGrid[y][x];
-        }
+        enemy->health = enemyData.health;
+        enemy->hasMoved = 0;
+        enemy->worldX = data.x;
+        enemy->worldY = data.y;
+        game->level->foreground[data.y][data.x] = (Entity *) enemy;
+        break;
+      case INTERACTABLE:
+        fread(&interactableData, sizeof(InteractableData), 1, file);
+        printf("This is the interactable tile no: %d", interactableData.type);
+        interactable = create_interactable(sprite_from_number(interactableData.type), interactableData.funcId, interactableData.type);
+        game->level->foreground[data.y][data.x] = (Entity *) interactable;
+        break;
+      default:
+        break;
       }
     }
     fclose(file);
@@ -327,8 +405,6 @@ int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY) {
 int main()
 {
   Game *game = load_game("./saves/save1");
-
-  game->state = LOADING;
 
   if (game == NULL)
   {

@@ -10,12 +10,27 @@ Enemy *create_enemy(Sprite *sprite)
     return enemy;
 }
 
-Interactable *create_interactable(Sprite *sprite, void (*interact)(struct Game *g, int x, int y))
+Interactable *create_interactable(Sprite *sprite, InteractFunctionId funcId, INTERACTABLES type)
 {
     Interactable *interactable = (Interactable *)malloc(sizeof(Interactable));
-    interactable->interact = interact;
     interactable->sprite = sprite;
     interactable->type = INTERACTABLE;
+    interactable->funcId = funcId;
+    interactable->interactableType = type;
+
+    switch (funcId)
+    {
+    case INTERACT_PROGRESS_LEVEL:
+        interactable->interact = progress_level;
+        break;
+    case INTERACT_PICKUP_EQUIPMENT:
+        interactable->interact = pickup_equipment;
+        break;
+    default:
+        fprintf(stderr, "Error: Invalid function Id passed in create_interactable function.");
+        break;
+    }
+
     return interactable;
 }
 

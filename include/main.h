@@ -3,11 +3,11 @@
 
 #include "level.h"
 #include "graphics.h"
+#include "interactables.h"
 #include "enemy.h"
 #include "entity_system.h"
 #include "player.h"
 #include "ui.h"
-#include "interactables.h"
 #include <stdio.h>
 #include <string.h>
 #include "limits.h"
@@ -33,19 +33,36 @@ typedef struct Game
 } Game;
 
 typedef struct {
-  int playerX;
-  int playerY;
-  int playerHealth;
+  Player player;
   int levelNumber;
   LevelState levelState;
-  Entity foregroundGrid[WINDOW_HEIGHT_SPRITES][WINDOW_WIDTH_SPRITES];
-} SaveData;
+  int numEntities;
+} SaveHeader;
+
+typedef struct {
+  int x;
+  int y;
+  EntityType type;
+} ForegroundDataHeader;
+
+/* Save data for the enemy */
+typedef struct {
+  int health;
+  EnemyType enemyType;
+} EnemyData;
+
+/* Save data for interactable */
+typedef struct {
+  InteractFunctionId funcId;
+  INTERACTABLES type;
+} InteractableData;
+
 
 void cleanup_game(Game *game);
 int save_game(Game *game, int levelNumber, const char *saveFilename);
 Game *load_game(const char *saveFilename);
 void handle_keypress(Game *game, SDL_Event *e);
-int initialise_game(Game *game, char *levelName, Player *player);
+int initialise_game(Game *game, int levelNumber, Player *player);
 int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY);
 
 #endif /* MAIN_H */
