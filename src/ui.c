@@ -79,22 +79,21 @@ void draw_text(Game *game, int worldX, int worldY, int lineLength, char *message
 {
   int x, y;
   int msgIndex = 0;
-  int msgSpaceWidth = WORLD_WIDTH_SPRITES - 4;
-  int endX = worldX + lineLength < WORLD_WIDTH_SPRITES ? worldX + lineLength : WORLD_WIDTH_SPRITES;
+  int endX = worldX + lineLength <= WORLD_WIDTH_SPRITES ? worldX + lineLength : WORLD_WIDTH_SPRITES;
   int endY = WORLD_HEIGHT_SPRITES - 1;
 
   for (y = worldY; y < endY; y++)
   {
-    for (x = 0; x < endX; x++)
+    for (x = worldX; x < endX; x++)
     {
-      msgIndex = ((y - worldY) * msgSpaceWidth) + x;
+      msgIndex = ((y - worldY) * lineLength) + (x - worldX);
       if (message[msgIndex] == '\0')
       {
         return;
       }
       else
       {
-        draw_ascii_char(game->graphics, message[msgIndex], x + worldX, y);
+        draw_ascii_char(game->graphics, message[msgIndex], x, y);
       }
     }
   }
@@ -108,8 +107,17 @@ void draw_dialog(Game *game)
 
 void draw_hud(Game *game)
 {
-  char *s = "Health:10";
-  draw_text(game, 1, 1, WORLD_WIDTH_SPRITES - 4, s);
+  char hp[7];
+  char atk[8];
+  char def[8];
+
+  sprintf(hp, "HP:%d", game->player->health);
+  sprintf(atk, "ATK:%d", game->player->attack);
+  sprintf(def, "DEF:%d", game->player->defense);
+
+  draw_text(game, 1, 1, WORLD_WIDTH_SPRITES - 4, hp);
+  draw_text(game, 8, 1, WORLD_WIDTH_SPRITES - 4, atk);
+  draw_text(game, 16, 1, WORLD_WIDTH_SPRITES - 4, def);
 }
 
 void show_popup(Game *game, char *message)
