@@ -1,3 +1,6 @@
+#ifndef UI_H
+#define UI_H
+
 struct Game;
 
 #define POPUP_HEIGHT 9
@@ -13,3 +16,5 @@ void dismiss_popup(struct Game *game);
 void draw_ui(struct Game *game);
 UI *initialize_ui();
 void cleanup_ui(UI *ui);
+
+#endif /* UI_H */

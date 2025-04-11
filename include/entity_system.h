@@ -1,3 +1,6 @@
+#ifndef ENTITY_SYSTEM_H
+#define ENTITY_SYSTEM_H
+
 struct Game;
 
 typedef enum {
@@ -25,6 +28,7 @@ typedef struct Interactable {
 } Interactable;
 
 typedef struct Enemy {
+    /* Note: We now include persistent coordinates */
     EntityType entity_type;
     EnemyType enemy_type;
     Sprite *sprite;
@@ -32,6 +36,9 @@ typedef struct Enemy {
     int attack;
     int defense;
     SpecialAbility ability;
+    int worldX;
+    int worldY;
+    int hasMoved;  /* New flag to ensure one move per turn */
 } Enemy;
 
 typedef struct ForegroundTile {
@@ -52,3 +59,5 @@ ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);
 void free_enemy(Enemy *enemy);
 void free_interactable(Interactable *interactable);
 void free_foreground_tile(ForegroundTile *tile);
+
+#endif /* ENTITY_SYSTEM_H */

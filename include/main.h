@@ -1,3 +1,6 @@
+#ifndef MAIN_H
+#define MAIN_H
+
 #include "level.h"
 #include "graphics.h"
 #include "enemy.h"
@@ -19,7 +22,6 @@ typedef enum GameState {
   MENU_OPEN,
   DIALOG_OPEN
 } GameState;
-
 
 typedef struct Game
 {
@@ -43,4 +45,7 @@ void cleanup_game(Game *game);
 int save_game(Game *game, int levelNumber, const char *saveFilename);
 Game *load_game(const char *saveFilename);
 void handle_keypress(Game *game, SDL_Event *e);
-int initialise_game(Game *game, int levelNumber, Player *player);
+int initialise_game(Game *game, char *levelName, Player *player);
+int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY);
+
+#endif /* MAIN_H */

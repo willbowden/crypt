@@ -1,4 +1,6 @@
 #include "main.h"
+#include "enemy.h"
+#include "entity_system.h"
 
 void cleanup_game(Game *game)
 {
@@ -245,7 +247,7 @@ void run_game(Game *game)
         switch (game->state)
         {
         case ENEMY_TURN:
-          /** TODO: Process enemy turns here */
+        enemy_turn(game);  /* Process enemy movements */
           game->state = PLAYER_TURN;
           break;
         case LOADING:
@@ -282,6 +284,45 @@ void run_game(Game *game)
   }
 }
 
+int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY) {
+  int gridW = WINDOW_WIDTH_SPRITES;
+  int gridH = WINDOW_HEIGHT_SPRITES;
+  int bestDist = 9999;
+  int chosenX = enemy->worldX;
+  int chosenY = enemy->worldY;
+  int dx[4] = {0, 1, 0, -1};
+  int dy[4] = {1, 0, -1, 0};
+  int i;
+  int dist;
+  
+  for (i = 0; i < 4; i++) {
+      int nx = enemy->worldX + dx[i];
+      int ny = enemy->worldY + dy[i];
+      if (nx < 0 || nx >= gridW || ny < 0 || ny >= gridH)
+          continue;
+      /* Allow movement if the cell is empty or occupied by the player */
+      if (game->level->foreground[ny][nx] != NULL && 
+          game->level->foreground[ny][nx]->type != PLAYER)
+          continue;
+      /* Compute Manhattan distance from candidate cell to player's position */
+      dist = abs(game->player->worldX - nx) + abs(game->player->worldY - ny);
+      if (dist < bestDist) {
+          bestDist = dist;
+          chosenX = nx;
+          chosenY = ny;
+      }
+  }
+  
+  /* If no neighbor found (should not happen in normal gameplay), return 0 */
+  if (chosenX == enemy->worldX && chosenY == enemy->worldY)
+      return 0;
+  
+  *nextX = chosenX;
+  *nextY = chosenY;
+  return 1;
+}
+
+
 /* Saving on quit and saving periodically between turns */
 int main()
 {
@@ -295,17 +336,20 @@ int main()
     return 1;
   }
 
-  render(game);
+  if (game->state == LOADING) {
+    spawn_random_enemies(game, 4);
+  }
 
+  render(game);
   game->state = PLAYER_TURN;
   run_game(game);
 
   if (save_game(game, game->level->levelNumber, "./saves/save1"))
   {
-    fprintf(stderr, "Error: Something went wrong while saving the game");
+    fprintf(stderr, "Error: Something went wrong while saving the game\n");
     return 1;
   }
-  printf("Game has been saved!");
+  printf("Game has been saved!\n");
   cleanup_game(game);
 
   return 0;

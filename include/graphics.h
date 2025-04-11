@@ -1,3 +1,6 @@
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
+
 #include <SDL2/SDL.h>
 
 #define SPRITE_WIDTH 16
@@ -9,8 +12,8 @@
 #define RENDER_SCALE 3.0
 #define MAX_ANIMATION_COUNT 16
 
-struct Game;
-struct Sprite;
+struct Game;      /* Forward declaration – Game is defined in main.h */
+struct Sprite;    /* Forward declaration */
 struct GraphicsEngine;
 
 typedef struct Animation
@@ -34,14 +37,12 @@ typedef struct GraphicsEngine
   unsigned short int animationSlots;
 } GraphicsEngine;
 
-
 typedef struct Sprite
 {
   int spriteX;
   int spriteY;
   double angle;
   int flip;
-
 } Sprite;
 
 GraphicsEngine *initialise_graphics();
@@ -51,3 +52,5 @@ void flashing_red_animation(GraphicsEngine *ge, Animation *a);
 void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY);
 void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY);
 void render(struct Game *g);
+
+#endif /* GRAPHICS_H */
