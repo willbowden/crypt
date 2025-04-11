@@ -69,6 +69,10 @@ void move_player(Game *game, SDL_KeyCode key)
     {
       Interactable *interactable = (Interactable *)game->level->foreground[newY][newX];
       interactable->interact(game, newX, newY);
+      if (interactable->passable) {
+        set_player_pos(game, newX, newY);
+        game->state = ENEMY_TURN;
+      }
     }
   }
 }

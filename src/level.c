@@ -188,9 +188,9 @@ Entity *entity_from_number(int tileNo)
   switch (tileNo)
   {
     case LEVEL1_DOOR:
-      return (Entity *)create_interactable(sprite, &progress_level);
+      return (Entity *)create_interactable(sprite, 0, &progress_level);
     case LEVEL1_SWORD:
-      return (Entity *)create_interactable(sprite, &pickup_equipment);
+      return (Entity *)create_interactable(sprite, 1, &pickup_equipment);
     default:
       return (Entity *)create_foreground_tile(sprite, 0);
   }
