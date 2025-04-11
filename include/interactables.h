@@ -6,5 +6,6 @@ typedef enum INTERACTABLES {
 } INTERACTABLES;
 
 void progress_level(struct Game *g, int x, int y);
+void pickup_weapon(struct Game *g, int x, int y);
+void pickup_armour(struct Game *g, int x, int y);
 void complete_level_1(struct Game *g, int x, int y);
-void pickup_equipment(struct Game *g, int x, int y);

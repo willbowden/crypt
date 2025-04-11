@@ -27,11 +27,18 @@ void progress_level(Game *g, int x, int y)
   }
 }
 
-void pickup_equipment(Game *g, int x, int y) 
+void pickup_weapon(Game *g, int x, int y) 
 {
   g->player->attack += 5;
-  g->player->defense += 5;
   g->level->levelState.flags |= 1;
+  free_interactable((Interactable *) g->level->foreground[y][x]);
+  g->level->foreground[y][x] = NULL;
+}
+
+void pickup_armour(Game *g, int x, int y) 
+{
+  g->player->defense += 5;
+  g->level->levelState.flags |= 1 << 1;
   free_interactable((Interactable *) g->level->foreground[y][x]);
   g->level->foreground[y][x] = NULL;
 }
