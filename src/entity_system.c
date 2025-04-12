@@ -10,13 +10,13 @@ Enemy *create_enemy(Sprite *sprite)
     return enemy;
 }
 
-Interactable *create_interactable(Sprite *sprite, InteractFunctionId funcId, INTERACTABLES type)
+Interactable *create_interactable(Sprite *sprite, InteractFunctionId funcId, INTERACTABLES interactableType)
 {
     Interactable *interactable = (Interactable *)malloc(sizeof(Interactable));
     interactable->sprite = sprite;
     interactable->type = INTERACTABLE;
     interactable->funcId = funcId;
-    interactable->interactableType = type;
+    interactable->interactableType = interactableType;
 
     switch (funcId)
     {

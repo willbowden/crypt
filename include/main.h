@@ -13,6 +13,8 @@
 #include "limits.h"
 
 #define GAME_FPS 60
+#define PATH_SEPARATOR '/'
+#define SAVE_INTERVAL 15
 
 typedef enum GameState {
   LOADING,
@@ -33,7 +35,12 @@ typedef struct Game
 } Game;
 
 typedef struct {
-  Player player;
+  int playerWorldX;
+  int playerWorldY;
+  Sprite playerSprite;
+  int playerHealth;
+  int playerAttack;
+  int playerDefense;
   int levelNumber;
   LevelState levelState;
   int numEntities;
@@ -54,7 +61,7 @@ typedef struct {
 /* Save data for interactable */
 typedef struct {
   InteractFunctionId funcId;
-  INTERACTABLES type;
+  INTERACTABLES type; /* Would contain tileNo */
 } InteractableData;
 
 

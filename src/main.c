@@ -3,12 +3,6 @@
 #include "entity_system.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#define pathSeparator '/'
-
-/* Plan: 
-- First make a header and store it
-- Then save the foreground data
-- When you load this foreground data, go through all of the items in the grid and if there doesn't exist an element in that x, y coordinate, give it null*/
 
 void cleanup_game(Game *game)
 {
@@ -46,7 +40,7 @@ void create_directories(const char *file_path) {
     memcpy(dir_path, file_path, dir_path_len);
     dir_path[dir_path_len] = '\0';
     mkdir(dir_path, S_IRWXU|S_IRWXG|S_IROTH);
-    next_sep = strchr(next_sep + 1, pathSeparator);
+    next_sep = strchr(next_sep + 1, PATH_SEPARATOR);
   }
   free(dir_path);
 }
@@ -73,7 +67,12 @@ int save_game(Game *game, int levelNumber, const char *saveFilename)
     fprintf(stderr, "Error: Could not create/open the save file");
     return 1;
   }
-  header.player = *(game->player);
+  header.playerWorldX = game->player->worldX;
+  header.playerWorldY = game->player->worldY;
+  header.playerAttack = game->player->attack;
+  header.playerDefense = game->player->defense;
+  header.playerSprite = *(game->player->sprite);
+  header.playerHealth = game->player->health;
   header.levelNumber = levelNumber;
   header.levelState = game->level->levelState;
 
@@ -135,6 +134,7 @@ Game *load_game(const char *saveFilename)
   EnemyData enemyData;
   Player *player;
   Enemy *enemy;
+  Sprite *sprite;
   Interactable *interactable;
   FILE *file = fopen(saveFilename, "rb");
   Game *game = (Game *)malloc(sizeof(Game));
@@ -163,7 +163,12 @@ Game *load_game(const char *saveFilename)
   else
   {
     fread(&header, sizeof(SaveHeader), 1, file);
-    *player = header.player;
+    *(player->sprite) = header.playerSprite;
+    player->attack = header.playerAttack;
+    player->defense = header.playerDefense;
+    player->health = header.playerHealth;
+    player->worldX = header.playerWorldX;
+    player->worldY = header.playerWorldY;
     game->state = PLAYER_TURN;
   }
 
@@ -182,6 +187,7 @@ Game *load_game(const char *saveFilename)
     for(y = 0; y < WINDOW_HEIGHT_SPRITES; y++) {
       for(x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
         if(game->level->foreground[y][x] != NULL && game->level->foreground[y][x]->type == INTERACTABLE) {
+          free_interactable((Interactable *) game->level->foreground[y][x]);
           game->level->foreground[y][x] = NULL; 
         }
       }
@@ -197,6 +203,7 @@ Game *load_game(const char *saveFilename)
         enemy = add_enemy(game, enemyData.enemyType);
         if(enemy == NULL) {
           fprintf(stderr, "Error: Could not create enemy from save data\n");
+          return NULL;
         }
         enemy->health = enemyData.health;
         enemy->hasMoved = 0;
@@ -206,7 +213,12 @@ Game *load_game(const char *saveFilename)
         break;
       case INTERACTABLE:
         fread(&interactableData, sizeof(InteractableData), 1, file);
-        interactable = create_interactable(sprite_from_number(interactableData.type), interactableData.funcId, interactableData.type);
+        sprite = sprite_from_number(interactableData.type);
+        interactable = create_interactable(sprite, interactableData.funcId, interactableData.type);
+        if(interactable == NULL) {
+          fprintf(stderr, "Error: Could not create interactable from save data\n");
+          return NULL;
+        }
         game->level->foreground[data.y][data.x] = (Entity *) interactable;
         break;
       default:
@@ -340,7 +352,7 @@ void run_game(Game *game)
           break;
         }
 
-        if (turns % 5 == 0)
+        if (turns % SAVE_INTERVAL == 0)
         {
           /* Make sure to replace the levelName and saveFile name with their respective variables to make it modular. */
           if (save_game(game, game->level->levelNumber, "./saves/save1"))
