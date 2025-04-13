@@ -2,7 +2,8 @@ struct Game;
 
 typedef enum INTERACTABLES {
   LEVEL1_DOOR = 838,
-  LEVEL1_SWORD = 376
+  LEVEL1_SWORD = 376,
+  TRANSITION_ARROW = 612
 } INTERACTABLES;
 
 void progress_level(struct Game *g, int x, int y);

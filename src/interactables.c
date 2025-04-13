@@ -1,6 +1,6 @@
 #include "main.h"
 
-void complete_level_1(Game *g, int x, int y)
+void complete_level_1(Game *g)
 {
   if ((g->level->levelState.flags & 1) == 0)
   {
@@ -11,6 +11,8 @@ void complete_level_1(Game *g, int x, int y)
   }
 }
 
+void complete_level_2(Game *g, 
+
 void progress_level(Game *g, int x, int y)
 {
   /**
@@ -20,8 +22,10 @@ void progress_level(Game *g, int x, int y)
   switch (g->level->levelNumber)
   {
     case 1:
-      complete_level_1(g, x, y);
+      complete_level_1(g);
       break;
+    case 2:
+
     default:
       break;
   }

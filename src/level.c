@@ -189,6 +189,8 @@ Entity *entity_from_number(int tileNo)
   {
     case LEVEL1_DOOR:
       return (Entity *)create_interactable(sprite, 0, &progress_level);
+    case TRANSITION_ARROW:
+      return (Entity *)create_interactable(sprite, 1, &progress_level);
     case LEVEL1_SWORD:
       return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
     default:
