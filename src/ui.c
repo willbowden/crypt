@@ -116,6 +116,7 @@ void show_popup(Game *game, char *message)
   game->ui->message = (char *)malloc(strlen(message) * sizeof(char));
   strcpy(game->ui->message, message);
   game->ui->visible = 1;
+  game->state = DIALOG_OPEN;
 }
 
 void dismiss_popup(Game *game)

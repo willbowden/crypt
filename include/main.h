@@ -3,6 +3,7 @@
 
 #include "level.h"
 #include "graphics.h"
+#include "interactables.h"
 #include "enemy.h"
 #include "entity_system.h"
 #include "player.h"
@@ -12,6 +13,8 @@
 #include "limits.h"
 
 #define GAME_FPS 60
+#define PATH_SEPARATOR '/'
+#define SAVE_INTERVAL 15
 
 typedef enum GameState {
   LOADING,
@@ -32,18 +35,41 @@ typedef struct Game
 } Game;
 
 typedef struct {
-  int playerX;
-  int playerY;
+  int playerWorldX;
+  int playerWorldY;
+  Sprite playerSprite;
   int playerHealth;
-  char levelName[64];
-  Entity foregroundGrid[WINDOW_HEIGHT_SPRITES][WINDOW_WIDTH_SPRITES];
-} SaveData;
+  int playerAttack;
+  int playerDefense;
+  int levelNumber;
+  LevelState levelState;
+  int numEntities;
+} SaveHeader;
+
+typedef struct {
+  int x;
+  int y;
+  EntityType type;
+} ForegroundDataHeader;
+
+/* Save data for the enemy */
+typedef struct {
+  int health;
+  EnemyType enemyType;
+} EnemyData;
+
+/* Save data for interactable */
+typedef struct {
+  InteractFunctionId funcId;
+  INTERACTABLES type; /* Would contain tileNo */
+} InteractableData;
+
 
 void cleanup_game(Game *game);
-int save_game(Game *game, const char *levelName, const char *saveFilename);
+int save_game(Game *game, int levelNumber, const char *saveFilename);
 Game *load_game(const char *saveFilename);
 void handle_keypress(Game *game, SDL_Event *e);
-int initialise_game(Game *game, char *levelName, Player *player);
+int initialise_game(Game *game, int levelNumber, Player *player);
 int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY);
 
 #endif /* MAIN_H */

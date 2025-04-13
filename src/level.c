@@ -59,11 +59,19 @@ void cleanup_level(Level *level)
   free(level);
 }
 
-Level *create_empty_level()
+LevelState create_empty_level_state()
+{
+  LevelState s;
+  s.flags = 0;
+  return s;
+}
+
+Level *create_empty_level(int levelNumber)
 {
   int y;
 
   Level *level = (Level *)calloc(1, sizeof(Level));
+  LevelState levelState = create_empty_level_state();
   if (!level)
   {
     fprintf(stderr, "%s\n", "Error allocating mem for empty level.");
@@ -101,12 +109,12 @@ Level *create_empty_level()
     }
   }
 
+  level->levelState = levelState;
+  level->levelNumber = levelNumber;
+
   return level;
 }
 
-/**
- * TODO: Calculate rotation/flipping from bit flags
- */
 Sprite *sprite_from_number(int tileNo)
 {
   int spriteX, spriteY, hflip, vflip, dflip;
@@ -123,7 +131,7 @@ Sprite *sprite_from_number(int tileNo)
 
   tileNo &= ~(1 << 31 | 1 << 30 | 1 << 29);
 
-  spriteX = ((tileNo + 1) % SPRITESHEET_WIDTH_SPRITES) - 1;
+  spriteX = ((tileNo) % SPRITESHEET_WIDTH_SPRITES);
   spriteY = (int)tileNo / SPRITESHEET_WIDTH_SPRITES;
 
   newSprite = (Sprite *)calloc(1, sizeof(Sprite));
@@ -131,10 +139,6 @@ Sprite *sprite_from_number(int tileNo)
   newSprite->spriteY = spriteY;
   newSprite->angle = 0;
   newSprite->flip = SDL_FLIP_NONE;
-
-  /**
-   * TODO: Still figuring out flips
-   */
 
   if (dflip)
   {
@@ -181,8 +185,16 @@ Entity *entity_from_number(int tileNo)
    * For now, all tiles are assumed to be ForegroundTiles
    */
 
+  switch (tileNo)
+  {
+    case LEVEL1_DOOR:
+      return (Entity *)create_interactable(sprite, INTERACT_PROGRESS_LEVEL, LEVEL1_DOOR);
+    case LEVEL1_SWORD:
+      return (Entity *)create_interactable(sprite, INTERACT_PICKUP_EQUIPMENT, LEVEL1_SWORD);
+    default:
+      return (Entity *)create_foreground_tile(sprite, 0);
+  }
 
-  return (Entity *)create_foreground_tile(sprite, 0);
 }
 
 int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)
@@ -213,7 +225,7 @@ int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_F
       {
         if (successfulReads < WINDOW_HEIGHT_SPRITES * WINDOW_WIDTH_SPRITES)
         {
-          fprintf(stderr, "Error reading background tile at location x:%d y%d:\n", x, y);
+          fprintf(stderr, "Error reading level tile at location x:%d y%d:\n", x, y);
           fclose(file);
           return -1;
         }
@@ -227,12 +239,12 @@ int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_F
   return 0;
 }
 
-Level *load_level(char *levelName)
+Level *load_level(int levelNumber)
 {
-  char *levelPrefix = (char *)malloc((strlen(levelName) + 15) * sizeof(char));
-  Level *level = create_empty_level();
+  char levelName[37];
+  Level *level = create_empty_level(levelNumber);
 
-  strcat(levelPrefix, levelName);
+  sprintf(levelName, "./assets/Levels/Level%d", levelNumber);
 
   if (load_layer(
           (LEVEL_LAYER)level->background,
@@ -240,7 +252,6 @@ Level *load_level(char *levelName)
           "_Background.csv",
           (ENTITY_FACTORY)sprite_from_number) < 0)
   {
-    free(levelPrefix);
     return NULL;
   }
 
@@ -250,10 +261,8 @@ Level *load_level(char *levelName)
           "_Foreground.csv",
           (ENTITY_FACTORY)entity_from_number) < 0)
   {
-    free(levelPrefix);
     return NULL;
   }
 
-  free(levelPrefix);
   return level;
 }

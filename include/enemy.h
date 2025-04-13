@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-/* Based on spreadsheet tile number */
+/* Based on spritesheet tile number */
 typedef enum {
     MAGE = 74,
     GOBLIN = 128,

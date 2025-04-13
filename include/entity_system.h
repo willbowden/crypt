@@ -1,6 +1,8 @@
 #ifndef ENTITY_SYSTEM_H
 #define ENTITY_SYSTEM_H
 
+struct Game;
+
 typedef enum {
     INVALID,
     ENEMY, 
@@ -22,6 +24,9 @@ typedef struct Player {
 typedef struct Interactable {
     EntityType type;
     Sprite *sprite;
+    INTERACTABLES interactableType;
+    InteractFunctionId funcId;
+    void (*interact)(struct Game *g, int x, int y);
 } Interactable;
 
 typedef struct Enemy {
@@ -48,13 +53,9 @@ typedef struct Entity {
     EntityType type;
 } Entity;
 
-typedef struct {
-    int x, y;
-} Point;
-
-Player *create_player(Sprite *sprite, int health, int worldX, int worldY);
-Enemy *create_enemy(Sprite *sprite);
-Interactable *create_interactable(Sprite *sprite, int passable);
+Player * create_player(Sprite *sprite, int health, int worldX, int worldY);
+Enemy * create_enemy(Sprite *sprite);
+Interactable * create_interactable(Sprite *sprite, InteractFunctionId funcId, INTERACTABLES interactableType);
 ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);
 
 void free_enemy(Enemy *enemy);

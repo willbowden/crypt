@@ -29,4 +29,7 @@ $(BUILD)/%.o: $(SRC)/%.c
 clean:
 	rm -rf $(BUILD) $(BIN)
 
+newgame:
+	rm $(SAVE)/*
+
 .PHONY: all clean

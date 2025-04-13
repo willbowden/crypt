@@ -19,6 +19,16 @@ void free_player(Player *player)
   free(player);
 }
 
+void set_player_pos(Game *game, int newX, int newY)
+{
+  int oldX = game->player->worldX;
+  int oldY = game->player->worldY;
+  game->level->foreground[oldY][oldX] = NULL;
+  game->level->foreground[newY][newX] = (Entity *)game->player;
+  game->player->worldX = newX;
+  game->player->worldY = newY;
+}
+
 void move_player(Game *game, SDL_KeyCode key)
 {
   int oldX = game->player->worldX;
@@ -54,10 +64,13 @@ void move_player(Game *game, SDL_KeyCode key)
 
     if (target == NULL)
     {
-      game->level->foreground[oldY][oldX] = NULL;
-      game->level->foreground[newY][newX] = (Entity *)game->player;
-      game->player->worldX = newX;
-      game->player->worldY = newY;
+      set_player_pos(game, newX, newY);
+      game->state = ENEMY_TURN;
+    }
+    else if (game->level->foreground[newY][newX]->type == INTERACTABLE)
+    {
+      Interactable *interactable = (Interactable *)game->level->foreground[newY][newX];
+      interactable->interact(game, newX, newY);
     }
     else if (target->type == ENEMY)
     {
@@ -91,7 +104,7 @@ void add_player(Game *game, int x, int y)
     fprintf(stderr, "Player doesn't exist!\n");
     return;
   }
-  
+
   if (game->level->foreground[y][x] != NULL)
   {
     free_player(game->player);
@@ -101,3 +114,4 @@ void add_player(Game *game, int x, int y)
   
   game->level->foreground[y][x] = (Entity *)game->player;
 }
+
