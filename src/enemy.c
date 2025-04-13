@@ -60,6 +60,81 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
     return enemy;
 }
 
+void spawn_random_enemies(Game *game, int count) {
+    int freeTiles[WINDOW_WIDTH_SPRITES * WINDOW_HEIGHT_SPRITES][2];
+    int freeCount = 0;
+    int x, y, i;
+    /* Scan the level for free tiles (where foreground is NULL) */
+    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++) {
+        for (x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
+            if (game->level->foreground[y][x] == NULL) {
+                freeTiles[freeCount][0] = x;
+                freeTiles[freeCount][1] = y;
+                freeCount++;
+            }
+        }
+    }
+    /* Spawn 'count' enemies at random free positions */
+    for (i = 0; i < count && freeCount > 0; i++) {
+        int idx = rand() % freeCount;
+        int spawnX = freeTiles[idx][0];
+        int spawnY = freeTiles[idx][1];
+        Enemy *enemy = add_enemy(game, MAGE);  /* For example, spawn a MAGE */ 
+        if (enemy != NULL) {
+            enemy->worldX = spawnX;
+            enemy->worldY = spawnY;
+            game->level->foreground[spawnY][spawnX] = (Entity *)enemy;
+        }
+        /* Remove the used position from freeTiles (swap with last and decrement freeCount) */ 
+        freeTiles[idx][0] = freeTiles[freeCount-1][0];
+        freeTiles[idx][1] = freeTiles[freeCount-1][1];
+        freeCount--;
+    }
+}
+
+void enemy_turn(Game *game) {
+    int i, j, nextX, nextY;
+    /* Iterate over the grid to move each enemy */
+    for (i = 0; i < WINDOW_HEIGHT_SPRITES; i++) {
+        for (j = 0; j < WINDOW_WIDTH_SPRITES; j++) {
+            Entity *ent = game->level->foreground[i][j];
+            if (ent && ent->type == ENEMY) {
+                Enemy *enemy = (Enemy *)ent;
+                /* Skip enemy if it has already moved this turn */
+                if (enemy->hasMoved)
+                    continue;
+                /* Compute next step (which, with our compute_next_move change,
+                   moves only one tile at a time) */
+                if (compute_next_move(game, enemy, &nextX, &nextY)) {
+                    /* If the next tile is occupied by the player, initiate attack */
+                    if (game->level->foreground[nextY][nextX] &&
+                        game->level->foreground[nextY][nextX]->type == PLAYER) {
+                        /* TODO: Attack logic here */
+                    } else {
+                        /* Move the enemy: update the grid and enemy coordinates */
+                        game->level->foreground[i][j] = NULL;
+                        enemy->worldX = nextX;
+                        enemy->worldY = nextY;
+                        game->level->foreground[nextY][nextX] = (Entity *)enemy;
+                    }
+                    /* Mark enemy as having moved this turn */
+                    enemy->hasMoved = 1;
+                }
+            }
+        }
+    }
+    
+    /* After processing enemy moves, reset the hasMoved flag for all enemies */
+    for (i = 0; i < WINDOW_HEIGHT_SPRITES; i++) {
+        for (j = 0; j < WINDOW_WIDTH_SPRITES; j++) {
+            Entity *ent = game->level->foreground[i][j];
+            if (ent && ent->type == ENEMY) {
+                ((Enemy *)ent)->hasMoved = 0;
+            }
+        }
+    }
+}
+
 void template_execution(struct Enemy *enemy, struct Game *game) {
     /* TODO: Not implemented yet, will implement after shortlisting the abilities and enemy types */
     /* Function to execute the special ability in game */

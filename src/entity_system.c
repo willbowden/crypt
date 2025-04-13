@@ -17,6 +17,22 @@ Interactable *create_interactable(Sprite *sprite, int passable, void (*interact)
     interactable->type = INTERACTABLE;
     interactable->passable = passable;
     interactable->interact = interact;
+    interactable->funcId = funcId;
+    interactable->interactableType = interactableType;
+
+    switch (funcId)
+    {
+    case INTERACT_PROGRESS_LEVEL:
+        interactable->interact = progress_level;
+        break;
+    case INTERACT_PICKUP_EQUIPMENT:
+        interactable->interact = pickup_equipment;
+        break;
+    default:
+        fprintf(stderr, "Error: Invalid function Id passed in create_interactable function.");
+        break;
+    }
+
     return interactable;
 }
 

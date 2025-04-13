@@ -1,5 +1,11 @@
 struct Game;
 
+typedef enum {
+  INTERACT_NONE,
+  INTERACT_PROGRESS_LEVEL,
+  INTERACT_PICKUP_EQUIPMENT
+} InteractFunctionId;
+
 typedef enum INTERACTABLES {
   LEVEL1_DOOR = 838,
   LEVEL1_SWORD = 376,

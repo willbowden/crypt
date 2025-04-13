@@ -11,10 +11,7 @@ typedef struct Level
   int levelNumber;
   LevelState levelState;
   struct Sprite ***background;
-  /**
-   * Use generic tiles for all other map elements,
-   * and cast to the correct pointer type after checking genericTile->type
-   */
+  /* All map elements go in foreground; cast to the proper type after checking Entity->type */
   struct Entity ***foreground;
 } Level;
 
