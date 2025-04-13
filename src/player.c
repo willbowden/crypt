@@ -124,13 +124,18 @@ void move_player(Game *game, SDL_KeyCode key)
   }
 }
 
-void add_player(Game *game, int x, int y)
+void add_player(Game *game)
 {
+  int x, y;
+
   if (game->player == NULL)
   {
     fprintf(stderr, "Player doesn't exist!\n");
     return;
   }
+
+  x = game->player->worldX;
+  y = game->player->worldY;
 
   if (game->level->foreground[y][x] != NULL)
   {

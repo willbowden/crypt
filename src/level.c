@@ -119,11 +119,15 @@ Sprite *sprite_from_number(int tileNo)
 {
   int spriteX, spriteY, hflip, vflip, dflip;
   Sprite *newSprite;
-
+  
   if (tileNo == -1)
   {
     return NULL;
   }
+  
+  newSprite = (Sprite *)calloc(1, sizeof(Sprite));
+  /* Be sure to set saved tileNo BEFORE we adjust it for rotation */
+  newSprite->tileNo = tileNo;
 
   hflip = tileNo & 1 << 31;
   vflip = tileNo & 1 << 30;
@@ -133,8 +137,7 @@ Sprite *sprite_from_number(int tileNo)
 
   spriteX = ((tileNo) % SPRITESHEET_WIDTH_SPRITES);
   spriteY = (int)tileNo / SPRITESHEET_WIDTH_SPRITES;
-
-  newSprite = (Sprite *)calloc(1, sizeof(Sprite));
+  
   newSprite->spriteX = spriteX;
   newSprite->spriteY = spriteY;
   newSprite->angle = 0;
@@ -187,16 +190,15 @@ Entity *entity_from_number(int tileNo)
 
   switch (tileNo)
   {
-    case LEVEL1_DOOR:
-      return (Entity *)create_interactable(sprite, 0, &progress_level);
-    case TRANSITION_ARROW:
-      return (Entity *)create_interactable(sprite, 1, &progress_level);
-    case LEVEL1_SWORD:
-      return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
-    default:
-      return (Entity *)create_foreground_tile(sprite, 0);
+  case LEVEL1_DOOR:
+    return (Entity *)create_interactable(sprite, 0, &progress_level);
+  case TRANSITION_ARROW:
+    return (Entity *)create_interactable(sprite, 1, &progress_level);
+  case LEVEL1_SWORD:
+    return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
+  default:
+    return (Entity *)create_foreground_tile(sprite, 0);
   }
-
 }
 
 int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)
@@ -241,7 +243,7 @@ int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_F
   return 0;
 }
 
-Level *load_level(int levelNumber)
+Level *load_level(int levelNumber, int loadingFromSave)
 {
   char levelName[37];
   Level *level = create_empty_level(levelNumber);
@@ -257,13 +259,16 @@ Level *load_level(int levelNumber)
     return NULL;
   }
 
-  if (load_layer(
-          (LEVEL_LAYER)level->foreground,
-          levelName,
-          "_Foreground.csv",
-          (ENTITY_FACTORY)entity_from_number) < 0)
+  if (!loadingFromSave)
   {
-    return NULL;
+    if (load_layer(
+            (LEVEL_LAYER)level->foreground,
+            levelName,
+            "_Foreground.csv",
+            (ENTITY_FACTORY)entity_from_number) < 0)
+    {
+      return NULL;
+    }
   }
 
   return level;

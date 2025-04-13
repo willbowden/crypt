@@ -37,7 +37,7 @@ typedef struct Game
 typedef struct {
   int playerWorldX;
   int playerWorldY;
-  Sprite playerSprite;
+  int playerSpriteNo;
   int playerHealth;
   int playerAttack;
   int playerDefense;
@@ -49,27 +49,16 @@ typedef struct {
 typedef struct {
   int x;
   int y;
-  EntityType type;
+  int tileNo;
+  EntityType entityType;
 } ForegroundDataHeader;
 
-/* Save data for the enemy */
-typedef struct {
-  int health;
-  EnemyType enemyType;
-} EnemyData;
-
-/* Save data for interactable */
-typedef struct {
-  InteractFunctionId funcId;
-  INTERACTABLES type; /* Would contain tileNo */
-} InteractableData;
-
-
 void cleanup_game(Game *game);
-int save_game(Game *game, int levelNumber, const char *saveFilename);
+Game *initialise_game();
+Game *new_game();
+int save_game(Game *game, const char *saveFilename);
 Game *load_game(const char *saveFilename);
 void handle_keypress(Game *game, SDL_Event *e);
-int initialise_game(Game *game, int levelNumber, Player *player);
 int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY);
 
 #endif /* MAIN_H */

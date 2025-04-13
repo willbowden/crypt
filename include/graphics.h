@@ -39,6 +39,7 @@ typedef struct GraphicsEngine
 
 typedef struct Sprite
 {
+  int tileNo;
   int spriteX;
   int spriteY;
   double angle;

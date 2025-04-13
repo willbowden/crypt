@@ -61,12 +61,12 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
 }
 
 void spawn_random_enemies(Game *game, int count) {
-    int freeTiles[WINDOW_WIDTH_SPRITES * WINDOW_HEIGHT_SPRITES][2];
+    int freeTiles[WORLD_WIDTH_SPRITES * WORLD_HEIGHT_SPRITES][2];
     int freeCount = 0;
     int x, y, i;
     /* Scan the level for free tiles (where foreground is NULL) */
-    for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++) {
-        for (x = 0; x < WINDOW_WIDTH_SPRITES; x++) {
+    for (y = 0; y < WORLD_HEIGHT_SPRITES; y++) {
+        for (x = 0; x < WORLD_WIDTH_SPRITES; x++) {
             if (game->level->foreground[y][x] == NULL) {
                 freeTiles[freeCount][0] = x;
                 freeTiles[freeCount][1] = y;
@@ -95,8 +95,8 @@ void spawn_random_enemies(Game *game, int count) {
 void enemy_turn(Game *game) {
     int i, j, nextX, nextY;
     /* Iterate over the grid to move each enemy */
-    for (i = 0; i < WINDOW_HEIGHT_SPRITES; i++) {
-        for (j = 0; j < WINDOW_WIDTH_SPRITES; j++) {
+    for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
+        for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
             if (ent && ent->type == ENEMY) {
                 Enemy *enemy = (Enemy *)ent;
@@ -125,8 +125,8 @@ void enemy_turn(Game *game) {
     }
     
     /* After processing enemy moves, reset the hasMoved flag for all enemies */
-    for (i = 0; i < WINDOW_HEIGHT_SPRITES; i++) {
-        for (j = 0; j < WINDOW_WIDTH_SPRITES; j++) {
+    for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
+        for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
             if (ent && ent->type == ENEMY) {
                 ((Enemy *)ent)->hasMoved = 0;

@@ -6,12 +6,17 @@ void complete_level_1(Game *g)
   {
     show_popup(g, "Careful adventurer! You are not prepared to enter. Arm  yourself first!");
   } else {
-    g->level = load_level(2);
+    g->level = load_level(2, 0);
     set_player_pos(g, 13, WORLD_HEIGHT_SPRITES-1);
   }
 }
 
-void complete_level_2(Game *g, 
+void complete_level_2(Game *g)
+{
+  /**
+   * TODO: Put level progression
+   */
+}
 
 void progress_level(Game *g, int x, int y)
 {
