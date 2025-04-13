@@ -13,9 +13,8 @@ void complete_level_1(Game *g)
 
 void complete_level_2(Game *g)
 {
-  /**
-   * TODO: Put level progression
-   */
+  g->level = load_level(3, 0);
+  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
 }
 
 void progress_level(Game *g, int x, int y)
@@ -30,7 +29,8 @@ void progress_level(Game *g, int x, int y)
       complete_level_1(g);
       break;
     case 2:
-
+      complete_level_2(g);
+      break;
     default:
       break;
   }
