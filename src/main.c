@@ -305,7 +305,7 @@ void run_game(Game *game)
          *  the player's key input must be handled.
          */
         default:
-          if (e.type == SDL_KEYDOWN)
+          if (e.type == SDL_KEYUP)
           {
             if (game->state == PLAYER_TURN)
             {
