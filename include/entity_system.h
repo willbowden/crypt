@@ -11,21 +11,10 @@ typedef enum {
     FOREGROUND_TILE
 } EntityType;
 
-typedef struct Player {
-    EntityType type;
-    Sprite *sprite;
-    int worldX;
-    int worldY;
-    int health;
-    int attack;
-    int defense;
-} Player;
-
 typedef struct Interactable {
     EntityType type;
     Sprite *sprite;
-    INTERACTABLES interactableType;
-    InteractFunctionId funcId;
+    int passable;
     void (*interact)(struct Game *g, int x, int y);
 } Interactable;
 
@@ -51,11 +40,11 @@ typedef struct ForegroundTile {
 
 typedef struct Entity {
     EntityType type;
+    Sprite *sprite;
 } Entity;
 
-Player * create_player(Sprite *sprite, int health, int worldX, int worldY);
 Enemy * create_enemy(Sprite *sprite);
-Interactable * create_interactable(Sprite *sprite, InteractFunctionId funcId, INTERACTABLES interactableType);
+Interactable * create_interactable(Sprite *sprite, int passable, void (*interact)(struct Game *g, int x, int y));
 ForegroundTile *create_foreground_tile(Sprite *sprite, int passable);
 
 void free_enemy(Enemy *enemy);

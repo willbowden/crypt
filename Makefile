@@ -32,4 +32,8 @@ clean:
 newgame:
 	rm $(SAVE)/*
 
+run:
+	make
+	./bin/crypt
+
 .PHONY: all clean

@@ -7,8 +7,8 @@
 #define SPRITE_HEIGHT 16
 #define SPRITESHEET_WIDTH_SPRITES 49
 #define SPRITESHEET_HEIGHT_SPRITES 22
-#define WINDOW_HEIGHT_SPRITES 18
-#define WINDOW_WIDTH_SPRITES 32
+#define WORLD_HEIGHT_SPRITES 18
+#define WORLD_WIDTH_SPRITES 32
 #define RENDER_SCALE 3.0
 #define MAX_ANIMATION_COUNT 16
 
@@ -39,6 +39,7 @@ typedef struct GraphicsEngine
 
 typedef struct Sprite
 {
+  int tileNo;
   int spriteX;
   int spriteY;
   double angle;

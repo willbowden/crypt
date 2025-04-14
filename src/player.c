@@ -55,9 +55,10 @@ void move_player(Game *game, SDL_KeyCode key)
         return;
   }
 
-  if (newX < WINDOW_WIDTH_SPRITES &&
+  if (
+      newX < WORLD_WIDTH_SPRITES &&
       newX >= 0 &&
-      newY < WINDOW_HEIGHT_SPRITES &&
+      newY < WORLD_HEIGHT_SPRITES &&
       newY >= 0)
   {
     target = game->level->foreground[newY][newX];
@@ -71,6 +72,32 @@ void move_player(Game *game, SDL_KeyCode key)
     {
       Interactable *interactable = (Interactable *)game->level->foreground[newY][newX];
       interactable->interact(game, newX, newY);
+      if (interactable->passable) {
+        set_player_pos(game, newX, newY);
+        game->state = ENEMY_TURN;
+      }
+    }
+    else if (target->type == ENEMY)
+    {
+      Enemy *enemy = (Enemy *)target;
+      int damage = 10;  /* Player's damage value */
+      enemy->health -= damage;
+
+      /* Add the red flashing animation to the enemy */
+      add_animation(
+          game->graphics,
+          &enemy->worldX,
+          &enemy->worldY,
+          enemy->sprite,
+          GAME_FPS / 4,
+          &flashing_red_animation
+        );
+
+        if (enemy->health <= 0)
+        {
+          free_enemy(enemy);
+          game->level->foreground[newY][newX] = NULL;
+        }
     }
     else if (target->type == ENEMY)
     {
@@ -97,13 +124,18 @@ void move_player(Game *game, SDL_KeyCode key)
   }
 }
 
-void add_player(Game *game, int x, int y)
+void add_player(Game *game)
 {
+  int x, y;
+
   if (game->player == NULL)
   {
     fprintf(stderr, "Player doesn't exist!\n");
     return;
   }
+
+  x = game->player->worldX;
+  y = game->player->worldY;
 
   if (game->level->foreground[y][x] != NULL)
   {

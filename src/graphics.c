@@ -19,8 +19,8 @@ GraphicsEngine *initialise_graphics()
     return NULL;
   }
 
-  screenWidth = SPRITE_WIDTH * WINDOW_WIDTH_SPRITES * RENDER_SCALE;
-  screenHeight = SPRITE_HEIGHT * WINDOW_HEIGHT_SPRITES * RENDER_SCALE;
+  screenWidth = SPRITE_WIDTH * WORLD_WIDTH_SPRITES * RENDER_SCALE;
+  screenHeight = SPRITE_HEIGHT * (WORLD_HEIGHT_SPRITES + HUD_HEIGHT_SPRITES) * RENDER_SCALE;
 
   graphics->window = SDL_CreateWindow("Crypt", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
   if (!graphics->window)
@@ -187,7 +187,7 @@ void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   spriteClip.h = SPRITE_HEIGHT;
 
   destRect.x = worldX * SPRITE_WIDTH;
-  destRect.y = worldY * SPRITE_HEIGHT;
+  destRect.y = (worldY + (HUD_HEIGHT_SPRITES - 1)) * SPRITE_HEIGHT;
   destRect.w = SPRITE_WIDTH;
   destRect.h = SPRITE_HEIGHT;
 
@@ -233,9 +233,9 @@ void draw_level(GraphicsEngine *ge, Level *level)
 {
   int x, y;
 
-  for (y = 0; y < WINDOW_HEIGHT_SPRITES; y++)
+  for (y = 0; y < WORLD_HEIGHT_SPRITES; y++)
   {
-    for (x = 0; x < WINDOW_WIDTH_SPRITES; x++)
+    for (x = 0; x < WORLD_WIDTH_SPRITES; x++)
     {
       if (level->foreground[y][x])
       {
@@ -285,8 +285,9 @@ void render(Game *g)
   draw_level(g->graphics, g->level);
   if (g->ui->visible)
   {
-    draw_ui(g);
+    draw_dialog(g);
   }
+  draw_hud(g);
   render_animations(g->graphics);
   SDL_RenderPresent(g->graphics->renderer);
 }
