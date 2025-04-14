@@ -17,6 +17,24 @@ void complete_level_2(Game *g)
   set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
 }
 
+void complete_level_3(Game *g)
+{
+  g->level = load_level(4, 0);
+  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
+}
+
+void complete_level_4(Game *g)
+{
+  g->level = load_level(5, 0);
+  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
+}
+
+/* void complete_level_5(Game *g)
+// {
+//   g->level = load_level(3, 0);
+//   set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
+// } */
+
 void progress_level(Game *g, int x, int y)
 {
   /**
@@ -30,6 +48,12 @@ void progress_level(Game *g, int x, int y)
       break;
     case 2:
       complete_level_2(g);
+      break;
+    case 3:
+      complete_level_3(g);
+      break;
+    case 4:
+      complete_level_4(g);
       break;
     default:
       break;
