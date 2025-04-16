@@ -155,6 +155,7 @@ Game *load_game(const char *saveFilename)
       fread(enemy, sizeof(Enemy), 1, file);
       enemy->sprite = sprite_from_number(data.tileNo);
       game->level->foreground[data.y][data.x] = (Entity *)enemy;
+      game->level->enemyCount++;
       break;
     default:
       game->level->foreground[data.y][data.x] = entity_from_number(data.tileNo);

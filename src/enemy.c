@@ -90,6 +90,8 @@ void spawn_random_enemies(Game *game, int count) {
         freeTiles[idx][1] = freeTiles[freeCount-1][1];
         freeCount--;
     }
+
+    game->level->enemyCount += count;
 }
 
 void enemy_turn(Game *game) {

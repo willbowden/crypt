@@ -95,6 +95,7 @@ void move_player(Game *game, SDL_KeyCode key)
 
         if (enemy->health <= 0)
         {
+          game->level->enemyCount--;
           free_enemy(enemy);
           game->level->foreground[newY][newX] = NULL;
         }

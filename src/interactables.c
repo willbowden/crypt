@@ -2,31 +2,48 @@
 
 void complete_level_1(Game *g)
 {
+  /**
+   * Check if player has picked up a weapon
+   */
   if ((g->level->levelState.flags & 1) == 0)
   {
-    show_popup(g, "Careful adventurer! You are not prepared to enter. Arm  yourself first!");
-  } else {
+    show_popup(g, "You'd be a fool to enter this place without a weapon!");
+  }
+  else if (g->level->enemyCount != 0)
+  {
+    show_popup(g, "Don't leave any foes behind!");
+  }
+  else
+  {
     g->level = load_level(2, 0);
-    set_player_pos(g, 13, WORLD_HEIGHT_SPRITES-1);
+    set_player_pos(g, 13, WORLD_HEIGHT_SPRITES - 1);
   }
 }
 
 void complete_level_2(Game *g)
 {
-  g->level = load_level(3, 0);
-  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
+  if (g->level->enemyCount != 0)
+  {
+    show_popup(g, "Don't leave any foes behind!");
+  }
+  else
+  {
+    g->level = load_level(3, 0);
+    set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
+    show_popup(g, "Goons!");
+  }
 }
 
 void complete_level_3(Game *g)
 {
   g->level = load_level(4, 0);
-  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
+  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
 }
 
 void complete_level_4(Game *g)
 {
   g->level = load_level(5, 0);
-  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
+  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
 }
 
 /* void complete_level_5(Game *g)
@@ -43,35 +60,35 @@ void progress_level(Game *g, int x, int y)
    */
   switch (g->level->levelNumber)
   {
-    case 1:
-      complete_level_1(g);
-      break;
-    case 2:
-      complete_level_2(g);
-      break;
-    case 3:
-      complete_level_3(g);
-      break;
-    case 4:
-      complete_level_4(g);
-      break;
-    default:
-      break;
+  case 1:
+    complete_level_1(g);
+    break;
+  case 2:
+    complete_level_2(g);
+    break;
+  case 3:
+    complete_level_3(g);
+    break;
+  case 4:
+    complete_level_4(g);
+    break;
+  default:
+    break;
   }
 }
 
-void pickup_weapon(Game *g, int x, int y) 
+void pickup_weapon(Game *g, int x, int y)
 {
   g->player->attack += 5;
   g->level->levelState.flags |= 1;
-  free_interactable((Interactable *) g->level->foreground[y][x]);
+  free_interactable((Interactable *)g->level->foreground[y][x]);
   g->level->foreground[y][x] = NULL;
 }
 
-void pickup_armour(Game *g, int x, int y) 
+void pickup_armour(Game *g, int x, int y)
 {
   g->player->defense += 5;
   g->level->levelState.flags |= 1 << 1;
-  free_interactable((Interactable *) g->level->foreground[y][x]);
+  free_interactable((Interactable *)g->level->foreground[y][x]);
   g->level->foreground[y][x] = NULL;
 }
