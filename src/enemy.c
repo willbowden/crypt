@@ -60,7 +60,7 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
     return enemy;
 }
 
-void spawn_random_enemies(Game *game, int count) {
+void spawn_random_enemies(Game *game, EnemyType type, int count) {
     int freeTiles[WORLD_WIDTH_SPRITES * WORLD_HEIGHT_SPRITES][2];
     int freeCount = 0;
     int x, y, i;
@@ -79,7 +79,7 @@ void spawn_random_enemies(Game *game, int count) {
         int idx = rand() % freeCount;
         int spawnX = freeTiles[idx][0];
         int spawnY = freeTiles[idx][1];
-        Enemy *enemy = add_enemy(game, MAGE);  /* For example, spawn a MAGE */ 
+        Enemy *enemy = add_enemy(game, type);  /* For example, spawn a MAGE */ 
         if (enemy != NULL) {
             enemy->worldX = spawnX;
             enemy->worldY = spawnY;

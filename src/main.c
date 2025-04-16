@@ -387,7 +387,7 @@ int main()
 
   if (game->state == LOADING)
   {
-    spawn_random_enemies(game, 4);
+    spawn_random_enemies(game, MAGE, 4);
   }
 
   render(game);

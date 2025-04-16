@@ -31,13 +31,21 @@ void complete_level_2(Game *g)
     g->level = load_level(3, 0);
     set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
     show_popup(g, "Goons!");
+    spawn_random_enemies(g, GOON, 5);
   }
 }
 
 void complete_level_3(Game *g)
 {
-  g->level = load_level(4, 0);
-  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
+  if (g->level->enemyCount != 0)
+  {
+    show_popup(g, "Don't leave any foes behind!");
+  }
+  else
+  {
+    g->level = load_level(4, 0);
+    set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
+  }
 }
 
 void complete_level_4(Game *g)

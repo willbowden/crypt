@@ -35,7 +35,7 @@ typedef struct {
 } SpecialAbility;
 
 struct Enemy *add_enemy(struct Game *game, int tileNo);
-void spawn_random_enemies(struct Game *game, int count);
+void spawn_random_enemies(struct Game *game, EnemyType type, int count);
 void enemy_turn(struct Game *game);
 void template_execution(struct Enemy *enemy, struct Game *game);
 
