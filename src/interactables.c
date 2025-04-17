@@ -22,7 +22,11 @@ void complete_level_1(Game *g)
 
 void complete_level_2(Game *g)
 {
-  if (g->level->enemyCount != 0)
+  if ((g->level->levelState.flags & (1 << 1)) == 0)
+  {
+    show_popup(g, "You can't go on with an outfit like that!");
+  }
+  else if (g->level->enemyCount != 0)
   {
     show_popup(g, "Don't leave any foes behind!");
   }
@@ -37,7 +41,11 @@ void complete_level_2(Game *g)
 
 void complete_level_3(Game *g)
 {
-  if (g->level->enemyCount != 0)
+  if ((g->level->levelState.flags & 1) == 0)
+  {
+    show_popup(g, "You'll need a stronger weapon to survive in there!");
+  }
+  else if (g->level->enemyCount != 0)
   {
     show_popup(g, "Don't leave any foes behind!");
   }
@@ -87,16 +95,38 @@ void progress_level(Game *g, int x, int y)
 
 void pickup_weapon(Game *g, int x, int y)
 {
+  
+  Sprite *old_sprite;
   g->player->attack += 5;
   g->level->levelState.flags |= 1;
   free_interactable((Interactable *)g->level->foreground[y][x]);
   g->level->foreground[y][x] = NULL;
+
+  switch (g->level->levelNumber)
+  {
+  case 1:
+    old_sprite = g->player->sprite;
+    g->player->sprite = sprite_from_number(26);
+    free(old_sprite);
+    break;
+  }
 }
 
 void pickup_armour(Game *g, int x, int y)
 {
+  Sprite *old_sprite;
+
   g->player->defense += 5;
   g->level->levelState.flags |= 1 << 1;
   free_interactable((Interactable *)g->level->foreground[y][x]);
   g->level->foreground[y][x] = NULL;
+
+  switch (g->level->levelNumber)
+  {
+  case 2:
+    old_sprite = g->player->sprite;
+    g->player->sprite = sprite_from_number(28);
+    free(old_sprite);
+    break;
+  }
 }

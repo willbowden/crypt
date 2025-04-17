@@ -196,6 +196,10 @@ Entity *entity_from_number(int tileNo)
     return (Entity *)create_interactable(sprite, 0, &progress_level);
   case LEVEL1_SWORD:
     return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
+  case LEVEL2_ARMOUR:
+    return (Entity *)create_interactable(sprite, 1, &pickup_armour);
+  case LEVEL3_SWORD:
+    return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
   default:
     return (Entity *)create_foreground_tile(sprite, 0);
   }
