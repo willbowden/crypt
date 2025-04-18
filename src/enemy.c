@@ -106,6 +106,12 @@ void enemy_turn(Game *game) {
                 /* Check if enemy is adjacent (cardinal only) at the beginning of the turn */
                 if (abs(enemy->worldX - game->player->worldX) + abs(enemy->worldY - game->player->worldY) == 1) {
                     game->player->health -= enemy->attack;
+                    if (game->player->health <= 0)
+                    {
+                        setup_game_over_menu(game->menu);
+                        game->state = MENU_OPEN;
+                        return;
+                    }
                     printf("Enemy attacked! Player HP: %d\n", game->player->health);
                     enemy->hasMoved = 1;  /* Mark as having acted */
                 }
@@ -141,6 +147,8 @@ void enemy_turn(Game *game) {
             }
         }
     }
+
+    game->state = PLAYER_TURN;
 }
 
 void template_execution(struct Enemy *enemy, struct Game *game) {

@@ -29,11 +29,11 @@ void setup_game_over_menu(Menu *menu)
       "Restart game"};
 
   MenuItem quit_game_item = {
-      &quit_game,
+      (int (*)(Game*)) &quit_game,
       "Admit defeat."};
 
   menu->title = "Game Over";
-  menu->text = "You died. Better luck next time.";
+  menu->text = "You died. Bad luck.";
   menu->num_items = 2;
   menu->selected_item = 0;
   menu->menu_items[0] = restart_game_item;

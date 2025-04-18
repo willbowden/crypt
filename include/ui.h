@@ -32,7 +32,7 @@ void dismiss_popup(struct Game *game);
 void draw_dialog(struct Game *game);
 void draw_hud(struct Game *game);
 void draw_menu(struct Game *game);
-void setup_game_over_menu(Menu *menu)
+void setup_game_over_menu(Menu *menu);
 Menu *initialise_menu();
 void cleanup_menu(Menu *menu);
 

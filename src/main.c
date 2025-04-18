@@ -331,7 +331,6 @@ void run_game(Game *game)
         {
         case ENEMY_TURN:
           enemy_turn(game); /* Process enemy movements */
-          game->state = PLAYER_TURN;
           break;
         case LOADING:
           break;
