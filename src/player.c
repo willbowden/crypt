@@ -99,28 +99,6 @@ void move_player(Game *game, SDL_KeyCode key)
           game->level->foreground[newY][newX] = NULL;
         }
     }
-    else if (target->type == ENEMY)
-    {
-      Enemy *enemy = (Enemy *)target;
-      int damage = 10;  /* Player's damage value */
-      enemy->health -= damage;
-
-      /* Add the red flashing animation to the enemy */
-      add_animation(
-          game->graphics,
-          &enemy->worldX,
-          &enemy->worldY,
-          enemy->sprite,
-          GAME_FPS / 4,
-          &flashing_red_animation
-        );
-
-        if (enemy->health <= 0)
-        {
-          free_enemy(enemy);
-          game->level->foreground[newY][newX] = NULL;
-        }
-    }
   }
 }
 
