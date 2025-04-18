@@ -29,7 +29,8 @@ typedef struct Enemy {
     SpecialAbility ability;
     int worldX;
     int worldY;
-    int hasMoved;  /* New flag to ensure one move per turn */
+    int hasMoved;  
+    int wasAttacked;
 } Enemy;
 
 typedef struct ForegroundTile {
