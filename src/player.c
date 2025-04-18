@@ -80,8 +80,7 @@ void move_player(Game *game, SDL_KeyCode key)
     else if (target->type == ENEMY)
     {
       Enemy *enemy = (Enemy *)target;
-      int damage = 10;  /* Player's damage value */
-      enemy->health -= damage;
+      enemy->health -= game->player->attack;
 
       /* Add the red flashing animation to the enemy */
       add_animation(

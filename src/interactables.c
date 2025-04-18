@@ -7,7 +7,7 @@ void complete_level_1(Game *g)
    */
   if ((g->level->levelState.flags & 1) == 0)
   {
-    show_popup(g, "You'd be a fool to enter this place without a weapon!");
+    show_popup(g, "Only a fool would enter this place without a weapon!");
   }
   else if (g->level->enemyCount != 0)
   {

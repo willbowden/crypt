@@ -176,7 +176,7 @@ void clear_screen(GraphicsEngine *ge)
   SDL_RenderClear(ge->renderer);
 }
 
-void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
+void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int screenX, int screenY)
 {
   SDL_Rect spriteClip;
   SDL_Rect destRect;
@@ -186,15 +186,15 @@ void draw_sprite(GraphicsEngine *ge, Sprite *sprite, int worldX, int worldY)
   spriteClip.w = SPRITE_WIDTH;
   spriteClip.h = SPRITE_HEIGHT;
 
-  destRect.x = worldX * SPRITE_WIDTH;
-  destRect.y = (worldY + (HUD_HEIGHT_SPRITES - 1)) * SPRITE_HEIGHT;
+  destRect.x = screenX * SPRITE_WIDTH;
+  destRect.y = screenY * SPRITE_HEIGHT;
   destRect.w = SPRITE_WIDTH;
   destRect.h = SPRITE_HEIGHT;
 
   SDL_RenderCopyEx(ge->renderer, ge->spritesheet, &spriteClip, &destRect, sprite->angle, NULL, sprite->flip);
 }
 
-void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY)
+void draw_ascii_char(GraphicsEngine *ge, char c, int screenX, int screenY)
 {
   SDL_Rect spriteClip;
   SDL_Rect destRect;
@@ -204,8 +204,8 @@ void draw_ascii_char(GraphicsEngine *ge, char c, int worldX, int worldY)
   spriteClip.w = FONT_SIZE;
   spriteClip.h = FONT_SIZE;
 
-  destRect.x = worldX * FONT_SIZE;
-  destRect.y = worldY * FONT_SIZE;
+  destRect.x = screenX * FONT_SIZE;
+  destRect.y = screenY * FONT_SIZE;
   destRect.w = FONT_SIZE;
   destRect.h = FONT_SIZE;
 
@@ -239,11 +239,11 @@ void draw_level(GraphicsEngine *ge, Level *level)
     {
       if (level->foreground[y][x])
       {
-        draw_sprite(ge, sprite_from_entity(level->foreground[y][x]), x, y);
+        draw_sprite(ge, sprite_from_entity(level->foreground[y][x]), x, y+HUD_HEIGHT_SPRITES);
       }
       else if (level->background[y][x])
       {
-        draw_sprite(ge, level->background[y][x], x, y);
+        draw_sprite(ge, level->background[y][x], x, y+HUD_HEIGHT_SPRITES);
       }
     }
   }
@@ -282,12 +282,22 @@ void render_animations(GraphicsEngine *ge)
 void render(Game *g)
 {
   clear_screen(g->graphics);
-  draw_level(g->graphics, g->level);
-  if (g->ui->visible)
+
+  switch (g->state)
+  {
+  case MENU_OPEN:
+    draw_menu(g);
+    break;
+  default:
+    draw_level(g->graphics, g->level);
+    draw_hud(g);
+    render_animations(g->graphics);
+    break;
+  }
+
+  if (g->state == DIALOG_OPEN)
   {
     draw_dialog(g);
   }
-  draw_hud(g);
-  render_animations(g->graphics);
   SDL_RenderPresent(g->graphics->renderer);
 }

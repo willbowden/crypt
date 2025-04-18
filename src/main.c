@@ -14,9 +14,9 @@ void cleanup_game(Game *game)
     cleanup_graphics(game->graphics);
   }
 
-  if (game->ui)
+  if (game->menu)
   {
-    cleanup_ui(game->ui);
+    cleanup_menu(game->menu);
   }
 
   if (game->level)
@@ -60,24 +60,23 @@ Game *initialise_game()
     return NULL;
   }
 
-  game->ui = initialize_ui();
+  game->menu = initialise_menu();
 
-  if (!game->ui)
+  if (!game->menu)
   {
     cleanup_game(game);
-    fprintf(stderr, "%s\n", "Error initialising UI");
+    fprintf(stderr, "%s\n", "Error initialising Menu State");
     return NULL;
   }
 
   return game;
 }
 
-Game *new_game()
+int new_game(Game *game)
 {
-  Game *game = initialise_game();
   if (game == NULL)
   {
-    return NULL;
+    return -1;
   }
 
   game->level = load_level(1, 0);
@@ -86,7 +85,7 @@ Game *new_game()
   {
     fprintf(stderr, "%s\n", "Error loading level");
     cleanup_game(game);
-    return NULL;
+    return -1;
   }
 
   game->player = create_player(sprite_from_number(25), 100, 29, 5);
@@ -95,31 +94,32 @@ Game *new_game()
   {
     fprintf(stderr, "%s\n", "Error adding player");
     cleanup_game(game);
-    return NULL;
+    return -1;
   }
 
   add_player(game);
 
-  return game;
+  spawn_random_enemies(game, GOBLIN, 4);
+
+  game->state = PLAYER_TURN;
+  return 0;
 }
 
-Game *load_game(const char *saveFilename)
+int load_game(Game *game)
 {
+  char saveFilename[] = "./saves/save1";
   int i;
   SaveHeader header;
   ForegroundDataHeader data;
   Player *player = (Player *)malloc(sizeof(Player));
   Enemy *enemy;
   FILE *file = fopen(saveFilename, "rb");
-  Game *game;
 
   if (file == NULL)
   {
     fprintf(stderr, "Error: Could not open the save file. Starting a new game.");
-    return new_game();
+    return new_game(game);
   }
-
-  game = initialise_game();
 
   fread(&header, sizeof(SaveHeader), 1, file);
   player->sprite = sprite_from_number(header.playerSpriteNo);
@@ -129,47 +129,49 @@ Game *load_game(const char *saveFilename)
   player->health = header.playerHealth;
   player->worldX = header.playerWorldX;
   player->worldY = header.playerWorldY;
-  game->state = PLAYER_TURN;
-
+  
   game->player = player;
 
   game->level = load_level(header.levelNumber, 1);
   if (game->level == NULL)
   {
     fprintf(stderr, "%s\n", "Error initialising level from save");
-    return NULL;
+    return -1;
   }
   game->level->levelState = header.levelState;
-
+  
   add_player(game);
-
+  
   /* Initialize the Entities in the foreground */
   for (i = 0; i < header.numEntities; i++)
   {
     fread(&data, sizeof(ForegroundDataHeader), 1, file);
-
+    
     switch (data.entityType)
     {
-    case ENEMY:
+      case ENEMY:
       enemy = (Enemy *) malloc(sizeof(Enemy));
       fread(enemy, sizeof(Enemy), 1, file);
       enemy->sprite = sprite_from_number(data.tileNo);
       game->level->foreground[data.y][data.x] = (Entity *)enemy;
       game->level->enemyCount++;
       break;
-    default:
+      default:
       game->level->foreground[data.y][data.x] = entity_from_number(data.tileNo);
       break;
     }
   }
-
+  
   fclose(file);
 
-  return game;
+  game->state = PLAYER_TURN;
+
+  return 0;
 }
 
-int save_game(Game *game, const char *saveFilename)
+int save_game(Game *game)
 {
+  char saveFilename[] = "./saves/save1";
   int x, y, entityCount;
   FILE *file;
   ForegroundDataHeader data;
@@ -182,6 +184,11 @@ int save_game(Game *game, const char *saveFilename)
   if (file == NULL)
   {
     fprintf(stderr, "Error: Could not create/open the save file");
+    return -1;
+  }
+
+  if (game->player == NULL)
+  {
     return 1;
   }
 
@@ -258,9 +265,30 @@ void handle_keypress(Game *game, SDL_Event *e)
     }
     break;
   case MENU_OPEN:
-    /**
-     * TODO: Handle menu inputs here
-     */
+    if (key == SDLK_UP)
+    {
+      if (game->menu->selected_item > 0)
+      {
+        game->menu->selected_item--;
+      } else {
+        game->menu->selected_item = game->menu->num_items - 1;
+      }
+    } else if (key == SDLK_DOWN)
+    {
+      if (game->menu->selected_item < game->menu->num_items - 1)
+      {
+        game->menu->selected_item++;
+      } else {
+        game->menu->selected_item = 0;
+      }
+    } else if (key == SDLK_RETURN)
+    {
+      if(game->menu->menu_items[game->menu->selected_item].select(game) != 0)
+      {
+        fprintf(stderr, "Error selecting menu item with text: %s\n", game->menu->menu_items[game->menu->selected_item].text);
+        exit(-1);
+      }
+    }
     break;
   case DIALOG_OPEN:
     game->state = PLAYER_TURN;
@@ -320,7 +348,7 @@ void run_game(Game *game)
         if (turns % SAVE_INTERVAL == 0)
         {
           /* Make sure to replace the levelName and saveFile name with their respective variables to make it modular. */
-          if (save_game(game, "./saves/save1"))
+          if (save_game(game) == -1)
           { /* Save every 5 turns */
             fprintf(stderr, "Error: Something went wrong while saving the game");
             return;
@@ -377,29 +405,23 @@ int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY)
 /* Saving on quit and saving periodically between turns */
 int main()
 {
-  Game *game = load_game("./saves/save1");
-
+  Game *game = initialise_game();
+  
   if (game == NULL)
   {
     fprintf(stderr, "Error: Unable to initialize game");
     return 1;
   }
 
-  if (game->state == LOADING)
-  {
-    spawn_random_enemies(game, MAGE, 4);
-  }
-
+  game->state = MENU_OPEN;
   render(game);
-  game->state = PLAYER_TURN;
   run_game(game);
 
-  if (save_game(game, "./saves/save1"))
+  if (save_game(game) == -1)
   {
     fprintf(stderr, "Error: Something went wrong while saving the game\n");
     return 1;
   }
-  printf("Game has been saved!\n");
   cleanup_game(game);
 
   return 0;
