@@ -242,6 +242,12 @@ int save_game(Game *game)
   return 0;
 }
 
+void quit_game(Game *game)
+{
+  cleanup_game(game);
+  exit(0);
+}
+
 void handle_keypress(Game *game, SDL_Event *e)
 {
   SDL_KeyCode key = e->key.keysym.sym;

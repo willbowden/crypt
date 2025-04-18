@@ -84,20 +84,22 @@ void move_player(Game *game, SDL_KeyCode key)
 
       /* Add the red flashing animation to the enemy */
       add_animation(
-          game->graphics,
-          &enemy->worldX,
-          &enemy->worldY,
-          enemy->sprite,
-          GAME_FPS / 4,
-          &flashing_red_animation
-        );
-
-        if (enemy->health <= 0)
-        {
-          game->level->enemyCount--;
-          free_enemy(enemy);
-          game->level->foreground[newY][newX] = NULL;
-        }
+            game->graphics,
+            &enemy->worldX,
+            &enemy->worldY,
+            enemy->sprite,
+            GAME_FPS / 4,
+            &flashing_red_animation);
+      
+      /* Mark the enemy as having been attacked */
+      enemy->wasAttacked = 1;
+      
+      if (enemy->health <= 0)
+      {
+        game->level->enemyCount--;
+        free_enemy(enemy);
+        game->level->foreground[newY][newX] = NULL;
+      }
     }
   }
 }

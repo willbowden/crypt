@@ -22,6 +22,26 @@ Menu *initialise_menu()
   return menu;
 }
 
+void setup_game_over_menu(Menu *menu)
+{
+  MenuItem restart_game_item = {
+      &new_game,
+      "Restart game"};
+
+  MenuItem quit_game_item = {
+      &quit_game,
+      "Admit defeat."};
+
+  menu->title = "Game Over";
+  menu->text = "You died. Better luck next time.";
+  menu->num_items = 2;
+  menu->selected_item = 0;
+  menu->menu_items[0] = restart_game_item;
+  menu->menu_items[1] = quit_game_item;
+  free(menu->selector);
+  menu->selector = sprite_from_number(622);
+}
+
 void cleanup_menu(Menu *menu)
 {
   free(menu->selector);
@@ -133,8 +153,12 @@ void draw_menu(Game *game)
   int longest_length = 0;
   MenuItem *menu_item;
   int title_length = strlen(game->menu->title);
+  int text_length = SCREEN_WIDTH_SPRITES - 2;
+  int items_y = (((strlen(game->menu->text) / text_length) + 1) * 2) + 4;
   draw_popup_background(game, 0, 0, SCREEN_WIDTH_SPRITES - 1, SCREEN_HEIGHT_SPRITES - 1);
   draw_text(game, (SCREEN_WIDTH_SPRITES / 2 - title_length / 2) - 1, 2, title_length, game->menu->title);
+
+  draw_text(game, ((SCREEN_WIDTH_SPRITES - text_length) / 2) + 1, 4, text_length, game->menu->text);
 
   for (i = 0; i < game->menu->num_items; i++)
   {
@@ -150,14 +174,14 @@ void draw_menu(Game *game)
   {
     menu_item = &game->menu->menu_items[i];
     is_selected = i == game->menu->selected_item;
-    y = 4 + (2 * i);
+    y = items_y + (2 * i);
     x = (SCREEN_WIDTH_SPRITES / 2 - longest_length / 2);
 
     if (is_selected)
     {
       draw_sprite(game->graphics, game->menu->selector, x - 2, y);
     }
-   
+
     draw_text(game, x, y, row_length, menu_item->text);
   }
 }

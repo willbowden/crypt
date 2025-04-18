@@ -59,6 +59,7 @@ Game *initialise_game();
 int new_game(Game *game);
 int save_game(Game *game);
 int load_game(Game *game);
+void quit_game(Game *game);
 void handle_keypress(Game *game, SDL_Event *e);
 int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY);
 

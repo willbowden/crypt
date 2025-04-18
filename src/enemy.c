@@ -96,37 +96,43 @@ void spawn_random_enemies(Game *game, EnemyType type, int count) {
 
 void enemy_turn(Game *game) {
     int i, j, nextX, nextY;
-    /* Iterate over the grid to move each enemy */
+    
+    /* Phase 1: Enemies that start adjacent attack immediately */
     for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
         for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
             if (ent && ent->type == ENEMY) {
                 Enemy *enemy = (Enemy *)ent;
-                /* Skip enemy if it has already moved this turn */
-                if (enemy->hasMoved)
-                    continue;
-                /* Compute next step (which, with our compute_next_move change,
-                   moves only one tile at a time) */
-                if (compute_next_move(game, enemy, &nextX, &nextY)) {
-                    /* If the next tile is occupied by the player, initiate attack */
-                    if (game->level->foreground[nextY][nextX] &&
-                        game->level->foreground[nextY][nextX]->type == PLAYER) {
-                        /* TODO: Attack logic here */
-                    } else {
-                        /* Move the enemy: update the grid and enemy coordinates */
-                        game->level->foreground[i][j] = NULL;
-                        enemy->worldX = nextX;
-                        enemy->worldY = nextY;
-                        game->level->foreground[nextY][nextX] = (Entity *)enemy;
-                    }
-                    /* Mark enemy as having moved this turn */
-                    enemy->hasMoved = 1;
+                /* Check if enemy is adjacent (cardinal only) at the beginning of the turn */
+                if (abs(enemy->worldX - game->player->worldX) + abs(enemy->worldY - game->player->worldY) == 1) {
+                    game->player->health -= enemy->attack;
+                    printf("Enemy attacked! Player HP: %d\n", game->player->health);
+                    enemy->hasMoved = 1;  /* Mark as having acted */
                 }
             }
         }
     }
     
-    /* After processing enemy moves, reset the hasMoved flag for all enemies */
+    /* Phase 2: For enemies that did not attack at the start, move one tile toward the player */
+    for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
+        for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
+            Entity *ent = game->level->foreground[i][j];
+            if (ent && ent->type == ENEMY) {
+                Enemy *enemy = (Enemy *)ent;
+                if (enemy->hasMoved)
+                    continue;
+                if (compute_next_move(game, enemy, &nextX, &nextY)) {
+                    game->level->foreground[i][j] = NULL;
+                    enemy->worldX = nextX;
+                    enemy->worldY = nextY;
+                    game->level->foreground[nextY][nextX] = (Entity *)enemy;
+                }
+                enemy->hasMoved = 1;
+            }
+        }
+    }
+    
+    /* Reset the hasMoved flag for all enemies for the next enemy turn */
     for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
         for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
