@@ -95,50 +95,52 @@ void spawn_random_enemies(Game *game, EnemyType type, int count) {
 }
 
 void enemy_turn(Game *game) {
-    int i, j, nextX, nextY;
-    
-    /* Phase 1: Enemies that start adjacent attack immediately */
+    int i, j, nextX, nextY, raw, dmg;
+
+    /* Phase 1: Enemies adjacent at the start of the turn attack,
+       but only if they haven’t just been hit this turn */
     for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
         for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
             if (ent && ent->type == ENEMY) {
                 Enemy *enemy = (Enemy *)ent;
-                /* Check if enemy is adjacent (cardinal only) at the beginning of the turn */
-                if (abs(enemy->worldX - game->player->worldX) + abs(enemy->worldY - game->player->worldY) == 1) {
-                    game->player->health -= enemy->attack;
-                    if (game->player->health <= 0)
-                    {
-                        setup_game_over_menu(game->menu);
-                        game->state = MENU_OPEN;
-                        return;
+                if (abs(enemy->worldX - game->player->worldX)
+                  + abs(enemy->worldY - game->player->worldY) == 1) {
+                    if (!enemy->wasAttacked) {
+                        raw = enemy->attack;
+                        dmg = raw - game->player->defense;
+                        if (dmg < 1) dmg = 1;
+                        game->player->health -= dmg;
+                        if (game->player->health <= 0) {
+                            setup_game_over_menu(game->menu);
+                            game->state = MENU_OPEN;
+                            return;
+                        }
                     }
-                    printf("Enemy attacked! Player HP: %d\n", game->player->health);
-                    enemy->hasMoved = 1;  /* Mark as having acted */
+                    enemy->wasAttacked = 0;
+                    enemy->hasMoved    = 1;
                 }
             }
         }
     }
-    
-    /* Phase 2: For enemies that did not attack at the start, move one tile toward the player */
+    /* Phase 2: Move any enemies that didn’t attack this turn */
     for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
         for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
             if (ent && ent->type == ENEMY) {
                 Enemy *enemy = (Enemy *)ent;
-                if (enemy->hasMoved)
-                    continue;
+                if (enemy->hasMoved) continue;
                 if (compute_next_move(game, enemy, &nextX, &nextY)) {
                     game->level->foreground[i][j] = NULL;
                     enemy->worldX = nextX;
                     enemy->worldY = nextY;
-                    game->level->foreground[nextY][nextX] = (Entity *)enemy;
+                    game->level->foreground[nextY][nextX] = ent;
                 }
                 enemy->hasMoved = 1;
             }
         }
     }
-    
-    /* Reset the hasMoved flag for all enemies for the next enemy turn */
+    /* Reset move‐flags for the next cycle */
     for (i = 0; i < WORLD_HEIGHT_SPRITES; i++) {
         for (j = 0; j < WORLD_WIDTH_SPRITES; j++) {
             Entity *ent = game->level->foreground[i][j];
@@ -147,9 +149,9 @@ void enemy_turn(Game *game) {
             }
         }
     }
-
     game->state = PLAYER_TURN;
 }
+
 
 void template_execution(struct Enemy *enemy, struct Game *game) {
     /* TODO: Not implemented yet, will implement after shortlisting the abilities and enemy types */

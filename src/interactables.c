@@ -17,6 +17,7 @@ void complete_level_1(Game *g)
   {
     g->level = load_level(2, 0);
     set_player_pos(g, 13, WORLD_HEIGHT_SPRITES - 1);
+    spawn_random_enemies(g, GOBLIN, 4);
   }
 }
 
@@ -53,6 +54,7 @@ void complete_level_3(Game *g)
   {
     g->level = load_level(4, 0);
     set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
+    spawn_random_enemies(g, SPIDER, 6);
   }
 }
 
@@ -60,6 +62,9 @@ void complete_level_4(Game *g)
 {
   g->level = load_level(5, 0);
   set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
+  spawn_random_enemies(g, GHOST, 5);
+  spawn_random_enemies(g, SPIDER, 5);
+  spawn_random_enemies(g, MAGE, 3);
 }
 
 /* void complete_level_5(Game *g)
