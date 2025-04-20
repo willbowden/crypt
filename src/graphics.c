@@ -120,8 +120,9 @@ void flashing_red_animation(GraphicsEngine *ge, Animation *a)
     draw_sprite(ge,
                 a->targetSprite,
                 *a->targetX,
-                *a->targetY);
+                *a->targetY + HUD_HEIGHT_SPRITES);
     SDL_SetTextureColorMod(ge->spritesheet, 255, 255, 255);
+
   }
 }
 
