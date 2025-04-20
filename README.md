@@ -29,7 +29,7 @@ to build the executable.
 
 ### Executing
 
-If you've built the executable yourself or are using the existing one, run from the root directory:
+Once you've built the executable, run from the root directory:
 
 ```bash
 ./bin/crypt
