@@ -1,27 +1,54 @@
 #include "main.h"
 
-UI *initialize_ui()
+Menu *initialise_menu()
 {
-  UI *ui = (UI *)calloc(1, sizeof(UI));
-  ui->message = NULL;
-  ui->visible = 0;
-  return ui;
+  Menu *menu = (Menu *)malloc(sizeof(Menu));
+  MenuItem new_game_item = {
+      &new_game,
+      "New Game"};
+
+  MenuItem load_game_item = {
+      &load_game,
+      "Load Save"};
+
+  menu->title = "Crypt";
+  menu->text = "New game or resume from save?";
+  menu->num_items = 2;
+  menu->selected_item = 0;
+  menu->menu_items[0] = new_game_item;
+  menu->menu_items[1] = load_game_item;
+  menu->selector = sprite_from_number(573);
+
+  return menu;
 }
 
-void cleanup_ui(UI *ui)
+void setup_game_over_menu(Menu *menu)
 {
-  if (ui->message)
-  {
-    free(ui->message);
-  }
-  free(ui);
+  MenuItem restart_game_item = {
+      &new_game,
+      "Restart game"};
+
+  MenuItem quit_game_item = {
+      (int (*)(Game*)) &quit_game,
+      "Admit defeat."};
+
+  menu->title = "Game Over";
+  menu->text = "You died. Bad luck.";
+  menu->num_items = 2;
+  menu->selected_item = 0;
+  menu->menu_items[0] = restart_game_item;
+  menu->menu_items[1] = quit_game_item;
+  free(menu->selector);
+  menu->selector = sprite_from_number(622);
 }
 
-void draw_popup_background(Game *game)
+void cleanup_menu(Menu *menu)
 {
-  int endX = WORLD_WIDTH_SPRITES - 1;
-  int startY = WORLD_HEIGHT_SPRITES - POPUP_HEIGHT;
-  int endY = WORLD_HEIGHT_SPRITES - 1;
+  free(menu->selector);
+}
+
+void draw_popup_background(Game *game, int startX, int startY, int endX, int endY)
+{
   int cornerXs[] = {18, 20, 18, 20};
   int cornerYs[] = {0, 0, 2, 2};
   int edgeXs[] = {19, 20, 19, 18};
@@ -35,7 +62,7 @@ void draw_popup_background(Game *game)
 
   for (y = startY; y <= endY; y++)
   {
-    for (x = 0; x <= endX; x++)
+    for (x = startX; x <= endX; x++)
     {
       if ((x == 0 && y == startY) || (x == endX && y == startY) ||
           (x == 0 && y == endY) || (x == endX && y == endY))
@@ -101,8 +128,8 @@ void draw_text(Game *game, int worldX, int worldY, int lineLength, char *message
 
 void draw_dialog(Game *game)
 {
-  draw_popup_background(game);
-  draw_text(game, 2, WORLD_HEIGHT_SPRITES - POPUP_HEIGHT + 1 + HUD_HEIGHT_SPRITES, WORLD_WIDTH_SPRITES - 4, game->ui->message);
+  draw_popup_background(game, 0, SCREEN_HEIGHT_SPRITES - POPUP_HEIGHT, SCREEN_WIDTH_SPRITES - 1, SCREEN_HEIGHT_SPRITES - 1);
+  draw_text(game, 2, SCREEN_HEIGHT_SPRITES - POPUP_HEIGHT + 2, SCREEN_WIDTH_SPRITES - 4, game->popup.message);
 }
 
 void draw_hud(Game *game)
@@ -115,30 +142,69 @@ void draw_hud(Game *game)
   sprintf(atk, "ATK:%d", game->player->attack);
   sprintf(def, "DEF:%d", game->player->defense);
 
-  draw_text(game, 1, 1, WORLD_WIDTH_SPRITES - 4, hp);
-  draw_text(game, 8, 1, WORLD_WIDTH_SPRITES - 4, atk);
-  draw_text(game, 16, 1, WORLD_WIDTH_SPRITES - 4, def);
+  draw_text(game, 1, 1, SCREEN_WIDTH_SPRITES - 4, hp);
+  draw_text(game, 8, 1, SCREEN_WIDTH_SPRITES - 4, atk);
+  draw_text(game, 16, 1, SCREEN_WIDTH_SPRITES - 4, def);
+}
+
+void draw_menu(Game *game)
+{
+  int i, row_length, is_selected, x, y;
+  int longest_length = 0;
+  MenuItem *menu_item;
+  int title_length = strlen(game->menu->title);
+  int text_length = SCREEN_WIDTH_SPRITES - 2;
+  int items_y = (((strlen(game->menu->text) / text_length) + 1) * 2) + 4;
+  draw_popup_background(game, 0, 0, SCREEN_WIDTH_SPRITES - 1, SCREEN_HEIGHT_SPRITES - 1);
+  draw_text(game, (SCREEN_WIDTH_SPRITES / 2 - title_length / 2) - 1, 2, title_length, game->menu->title);
+
+  draw_text(game, ((SCREEN_WIDTH_SPRITES - text_length) / 2) + 1, 4, text_length, game->menu->text);
+
+  for (i = 0; i < game->menu->num_items; i++)
+  {
+    menu_item = &game->menu->menu_items[i];
+    row_length = strlen(menu_item->text);
+    if (row_length > longest_length)
+    {
+      longest_length = row_length;
+    }
+  }
+
+  for (i = 0; i < game->menu->num_items; i++)
+  {
+    menu_item = &game->menu->menu_items[i];
+    is_selected = i == game->menu->selected_item;
+    y = items_y + (2 * i);
+    x = (SCREEN_WIDTH_SPRITES / 2 - longest_length / 2);
+
+    if (is_selected)
+    {
+      draw_sprite(game->graphics, game->menu->selector, x - 2, y);
+    }
+
+    draw_text(game, x, y, row_length, menu_item->text);
+  }
 }
 
 void show_popup(Game *game, char *message)
 {
-  if (game->ui->message)
+  if (game->popup.message)
   {
-    free(game->ui->message);
+    free(game->popup.message);
   }
 
-  game->ui->message = (char *)malloc(strlen(message) * sizeof(char));
-  strcpy(game->ui->message, message);
-  game->ui->visible = 1;
+  game->popup.message = (char *)malloc(strlen(message) * sizeof(char));
+  strcpy(game->popup.message, message);
+  game->popup.visible = 1;
   game->state = DIALOG_OPEN;
 }
 
 void dismiss_popup(Game *game)
 {
-  game->ui->visible = 0;
-  if (game->ui->message)
+  game->popup.visible = 0;
+  if (game->popup.message)
   {
-    free(game->ui->message);
-    game->ui->message = NULL;
+    free(game->popup.message);
+    game->popup.message = NULL;
   }
 }

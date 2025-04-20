@@ -30,8 +30,9 @@ typedef struct Game
   GraphicsEngine *graphics;
   Level *level;
   Player *player;
+  Menu *menu;
+  Popup popup;
   GameState state;
-  UI *ui;
 } Game;
 
 typedef struct {
@@ -55,9 +56,10 @@ typedef struct {
 
 void cleanup_game(Game *game);
 Game *initialise_game();
-Game *new_game();
-int save_game(Game *game, const char *saveFilename);
-Game *load_game(const char *saveFilename);
+int new_game(Game *game);
+int save_game(Game *game);
+int load_game(Game *game);
+void quit_game(Game *game);
 void handle_keypress(Game *game, SDL_Event *e);
 int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY);
 

@@ -7,6 +7,7 @@ Enemy *create_enemy(Sprite *sprite)
     Enemy *enemy = (Enemy *)malloc(sizeof(Enemy));
     enemy->sprite = sprite;
     enemy->entity_type = ENEMY;
+    enemy->hasMoved = 0;
     return enemy;
 }
 

@@ -8,11 +8,12 @@ typedef struct LevelState
 
 typedef struct Level
 {
-  int levelNumber;
-  LevelState levelState;
   struct Sprite ***background;
   /* All map elements go in foreground; cast to the proper type after checking Entity->type */
   struct Entity ***foreground;
+  LevelState levelState;
+  int levelNumber;
+  int enemyCount;
 } Level;
 
 typedef void *(*ENTITY_FACTORY)(int);
