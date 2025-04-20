@@ -181,13 +181,6 @@ Entity *entity_from_number(int tileNo)
 
   sprite = sprite_from_number(tileNo);
 
-  /**
-   * TODO: Add inequalities to match different tile numbers
-   * to different entity types.
-   *
-   * For now, all tiles are assumed to be ForegroundTiles
-   */
-
   switch (tileNo)
   {
   case LEVEL1_DOOR:
