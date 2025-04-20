@@ -69,6 +69,8 @@ Game *initialise_game()
     return NULL;
   }
 
+  game->state = LOADING;
+
   return game;
 }
 
@@ -121,6 +123,7 @@ int load_game(Game *game)
   Player *player = (Player *)malloc(sizeof(Player));
   Enemy *enemy;
   FILE *file = fopen(saveFilename, "rb");
+  game->state = LOADING;
 
   if (file == NULL)
   {
@@ -187,6 +190,8 @@ int save_game(Game *game)
   FILE *file;
   ForegroundDataHeader data;
   SaveHeader header;
+  GameState previousState = game->state;
+  game->state = LOADING;
 
   /**
    * If there's no game state to save
@@ -256,6 +261,8 @@ int save_game(Game *game)
     }
   }
   fclose(file);
+
+  game->state = previousState;
   return 0;
 }
 
