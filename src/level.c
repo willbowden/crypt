@@ -200,6 +200,8 @@ Entity *entity_from_number(int tileNo)
     return (Entity *)create_interactable(sprite, 1, &pickup_armour);
   case LEVEL3_SWORD:
     return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
+  case WINNING_CROWN:
+    return (Entity *)create_interactable(sprite, 0, &complete_game);
   default:
     return (Entity *)create_foreground_tile(sprite, 0);
   }
