@@ -131,7 +131,27 @@ int load_game(Game *game)
     return new_game(game);
   }
 
-  fread(&header, sizeof(SaveHeader), 1, file);
+  if(fread(&header, sizeof(SaveHeader), 1, file) != 1) {
+    fprintf(stderr, "Error: Save file read error. Starting new game\n");
+    return new_game(game);
+  }
+
+  if(header.magic_number != CRYPT_SAVE_MAGIC) {
+    fprintf(stderr, "Error: Potential save file corruption detected. Starting new game\n");
+    return new_game(game);
+  }
+
+  /* Checking if the values obtained are in the valid range */
+  if(header.playerHealth <= 0 || header.playerHealth > MAX_HEALTH ||
+    header.playerAttack < 0 || header.playerAttack > MAX_ATTACK ||
+    header.playerDefense < 0 || header.playerDefense > MAX_DEFENSE ||
+    header.playerWorldX < 0 || header.playerWorldX >= WORLD_WIDTH_SPRITES ||
+    header.playerWorldY < 0 || header.playerWorldY >= WORLD_HEIGHT_SPRITES ||
+    header.levelNumber <= 0 || header.levelNumber > MAX_LEVEL_NUMBER) {
+      fprintf(stderr, "Error: Invalid player attributes loaded. Starting new game");
+      return new_game(game);
+  }
+
   player->sprite = sprite_from_number(header.playerSpriteNo);
   player->type = PLAYER;
   player->attack = header.playerAttack;
@@ -155,13 +175,25 @@ int load_game(Game *game)
   /* Initialize the Entities in the foreground */
   for (i = 0; i < header.numEntities; i++)
   {
-    fread(&data, sizeof(ForegroundDataHeader), 1, file);
+    if (fread(&data, sizeof(ForegroundDataHeader), 1, file) != 1) {
+      fprintf(stderr, "Error: Save file read error. Starting new game\n");
+      return new_game(game);
+    }
     
+    if(data.x < 0 || data.x >= WORLD_WIDTH_SPRITES ||
+      data.y < 0 || data.y >= WORLD_HEIGHT_SPRITES) {
+        fprintf(stderr, "Error: Invalid foreground header attributes loaded. Starting new game\n");
+        return new_game(game);
+    }
+
     switch (data.entityType)
     {
       case ENEMY:
       enemy = (Enemy *) malloc(sizeof(Enemy));
-      fread(enemy, sizeof(Enemy), 1, file);
+      if (fread(enemy, sizeof(Enemy), 1, file) != 1) {
+        fprintf(stderr, "Error: Save file read error. Starting new game.\n");
+        return new_game(game);
+      }
       enemy->sprite = sprite_from_number(data.tileNo);
       game->level->foreground[data.y][data.x] = (Entity *)enemy;
       game->level->enemyCount++;
@@ -222,6 +254,7 @@ int save_game(Game *game)
   header.playerHealth = game->player->health;
   header.levelNumber = game->level->levelNumber;
   header.levelState = game->level->levelState;
+  header.magic_number = CRYPT_SAVE_MAGIC;
 
   entityCount = 0;
   for(y = 0; y < WORLD_HEIGHT_SPRITES; y++){
@@ -274,7 +307,7 @@ void quit_game(Game *game)
 
 void handle_keypress(Game *game, SDL_Event *e)
 {
-  SDL_KeyCode key = e->key.keysym.sym;
+  SDL_Keycode key = e->key.keysym.sym;
 
   switch (game->state)
   {
@@ -400,7 +433,7 @@ int main()
   
   if (game == NULL)
   {
-    fprintf(stderr, "Error: Unable to initialize game");
+    fprintf(stderr, "Error: Unable to initialize game\n");
     return 1;
   }
 

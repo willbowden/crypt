@@ -1,6 +1,8 @@
 struct Sprite;
 struct Entity;
 
+#define MAX_LEVEL_NUMBER 3
+
 typedef struct LevelState
 {
   unsigned int flags;
