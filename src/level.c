@@ -207,6 +207,10 @@ Entity *entity_from_number(int tileNo)
   }
 }
 
+/**
+ * Load a level layer from a .csv file of tile numbers
+ * ENTITY_FACTORY is simply a function that converts a tile number into a correspnding entity
+ */
 int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)
 {
   char *levelName = (char *)malloc((strlen(levelPrefix) + 15) * sizeof(char));

@@ -43,6 +43,47 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
     return enemy;
 }
 
+int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY)
+{
+  int gridW = WORLD_WIDTH_SPRITES;
+  int gridH = WORLD_HEIGHT_SPRITES;
+  int bestDist = 9999;
+  int chosenX = enemy->worldX;
+  int chosenY = enemy->worldY;
+  int dx[4] = {0, 1, 0, -1};
+  int dy[4] = {1, 0, -1, 0};
+  int i;
+  int dist;
+
+  for (i = 0; i < 4; i++)
+  {
+    int nx = enemy->worldX + dx[i];
+    int ny = enemy->worldY + dy[i];
+    if (nx < 0 || nx >= gridW || ny < 0 || ny >= gridH)
+      continue;
+    /* Allow movement if the cell is empty or occupied by the player */
+    if (game->level->foreground[ny][nx] != NULL &&
+        game->level->foreground[ny][nx]->type != PLAYER)
+      continue;
+    /* Compute Manhattan distance from candidate cell to player's position */
+    dist = abs(game->player->worldX - nx) + abs(game->player->worldY - ny);
+    if (dist < bestDist)
+    {
+      bestDist = dist;
+      chosenX = nx;
+      chosenY = ny;
+    }
+  }
+
+  /* If no neighbor found (should not happen in normal gameplay), return 0 */
+  if (chosenX == enemy->worldX && chosenY == enemy->worldY)
+    return 0;
+
+  *nextX = chosenX;
+  *nextY = chosenY;
+  return 1;
+}
+
 void spawn_random_enemies(Game *game, EnemyType type, int count) {
     int freeTiles[WORLD_WIDTH_SPRITES * WORLD_HEIGHT_SPRITES][2];
     int freeCount = 0;

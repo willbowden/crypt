@@ -67,6 +67,9 @@ void cleanup_menu(Menu *menu)
   free(menu->selector);
 }
 
+/**
+ * Draw a brick-bordered blank box to fill with UI elements
+ */
 void draw_popup_background(Game *game, int startX, int startY, int endX, int endY)
 {
   int cornerXs[] = {18, 20, 18, 20};
@@ -122,18 +125,21 @@ void draw_popup_background(Game *game, int startX, int startY, int endX, int end
   }
 }
 
-void draw_text(Game *game, int worldX, int worldY, int lineLength, char *message)
+/**
+ * Draw ASCII text anywhere on screen
+ */
+void draw_text(Game *game, int screenX, int screenY, int lineLength, char *message)
 {
   int x, y;
   int msgIndex = 0;
-  int endX = worldX + lineLength <= WORLD_WIDTH_SPRITES ? worldX + lineLength : WORLD_WIDTH_SPRITES;
+  int endX = screenX + lineLength <= WORLD_WIDTH_SPRITES ? screenX + lineLength : WORLD_WIDTH_SPRITES;
   int endY = WORLD_HEIGHT_SPRITES - 1;
 
-  for (y = worldY; y < endY; y++)
+  for (y = screenY; y < endY; y++)
   {
-    for (x = worldX; x < endX; x++)
+    for (x = screenX; x < endX; x++)
     {
-      msgIndex = ((y - worldY) * lineLength) + (x - worldX);
+      msgIndex = ((y - screenY) * lineLength) + (x - screenX);
       if (message[msgIndex] == '\0')
       {
         return;
@@ -146,12 +152,18 @@ void draw_text(Game *game, int worldX, int worldY, int lineLength, char *message
   }
 }
 
+/**
+ * Draw a box occupying the bottom half of the screen with a message on top
+ */
 void draw_dialog(Game *game)
 {
   draw_popup_background(game, 0, SCREEN_HEIGHT_SPRITES - POPUP_HEIGHT, SCREEN_WIDTH_SPRITES - 1, SCREEN_HEIGHT_SPRITES - 1);
   draw_text(game, 2, SCREEN_HEIGHT_SPRITES - POPUP_HEIGHT + 2, SCREEN_WIDTH_SPRITES - 4, game->popup.message);
 }
 
+/**
+ * Draw the HUD above the world to display player info
+ */
 void draw_hud(Game *game)
 {
   char hp[7];
@@ -167,6 +179,9 @@ void draw_hud(Game *game)
   draw_text(game, 16, 1, SCREEN_WIDTH_SPRITES - 4, def);
 }
 
+/**
+ * Draw a fullscreen menu with a list of actions to take
+ */
 void draw_menu(Game *game)
 {
   int i, row_length, is_selected, x, y;
@@ -198,6 +213,9 @@ void draw_menu(Game *game)
     y = items_y + (2 * i);
     x = (SCREEN_WIDTH_SPRITES / 2) - (longest_length / 2) - 1;
 
+    /**
+     * Draw the 'cursor' sprite next to the currently highlighted element
+     */
     if (is_selected)
     {
       draw_sprite(game->graphics, game->menu->selector, x - 2, y);

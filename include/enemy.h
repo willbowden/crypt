@@ -16,6 +16,7 @@ struct Enemy;  /* Forward declaration; full definition comes from entity_system.
 struct Game;
 
 struct Enemy *add_enemy(struct Game *game, int tileNo);
+int compute_next_move(struct Game *game, struct Enemy *enemy, int *nextX, int *nextY);
 void spawn_random_enemies(struct Game *game, EnemyType type, int count);
 void enemy_turn(struct Game *game);
 

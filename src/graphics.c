@@ -114,6 +114,7 @@ void add_animation(GraphicsEngine *ge, int *targetX, int *targetY, Sprite *targe
 
 void flashing_red_animation(GraphicsEngine *ge, Animation *a)
 {
+  /* Alternate sprite colour between red and normal every other frame */
   if (a->currentFrame % (a->duration / 2) < (a->duration / 4))
   {
     SDL_SetTextureColorMod(ge->spritesheet, 255, 0, 0);
@@ -238,6 +239,7 @@ void draw_level(GraphicsEngine *ge, Level *level)
   {
     for (x = 0; x < WORLD_WIDTH_SPRITES; x++)
     {
+      /* Use HUD_HEIGHT_SPRITES as an offset here as the world-space coordinates do not account for the HUD */
       if (level->foreground[y][x])
       {
         draw_sprite(ge, sprite_from_entity(level->foreground[y][x]), x, y+HUD_HEIGHT_SPRITES);
