@@ -29,7 +29,7 @@ void set_player_pos(Game *game, int newX, int newY)
   game->player->worldY = newY;
 }
 
-void move_player(Game *game, SDL_Keycode key)
+void move_player(Game *game, SDL_KeyCode key)
 {
   int oldX = game->player->worldX;
   int oldY = game->player->worldY;

@@ -307,7 +307,7 @@ void quit_game(Game *game)
 
 void handle_keypress(Game *game, SDL_Event *e)
 {
-  SDL_Keycode key = e->key.keysym.sym;
+  SDL_KeyCode key = e->key.keysym.sym;
 
   switch (game->state)
   {
