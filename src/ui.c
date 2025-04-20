@@ -173,12 +173,13 @@ void draw_menu(Game *game)
   int longest_length = 0;
   MenuItem *menu_item;
   int title_length = strlen(game->menu->title);
-  int text_length = SCREEN_WIDTH_SPRITES - 2;
-  int items_y = (((strlen(game->menu->text) / text_length) + 1) * 2) + 4;
+  int line_length = SCREEN_WIDTH_SPRITES - 2;
+  int text_length = strlen(game->menu->text);
+  int items_y = (((strlen(game->menu->text) / line_length) + 1) * 2) + 4;
+  
   draw_popup_background(game, 0, 0, SCREEN_WIDTH_SPRITES - 1, SCREEN_HEIGHT_SPRITES - 1);
-  draw_text(game, (SCREEN_WIDTH_SPRITES / 2 - title_length / 2) - 1, 2, title_length, game->menu->title);
-
-  draw_text(game, ((SCREEN_WIDTH_SPRITES - text_length) / 2) + 1, 4, text_length, game->menu->text);
+  draw_text(game, (SCREEN_WIDTH_SPRITES / 2 - title_length / 2), 2, title_length, game->menu->title);
+  draw_text(game, (SCREEN_WIDTH_SPRITES / 2) - (text_length / 2), 4, line_length, game->menu->text);
 
   for (i = 0; i < game->menu->num_items; i++)
   {
@@ -195,14 +196,14 @@ void draw_menu(Game *game)
     menu_item = &game->menu->menu_items[i];
     is_selected = i == game->menu->selected_item;
     y = items_y + (2 * i);
-    x = (SCREEN_WIDTH_SPRITES - longest_length) / 2;
+    x = (SCREEN_WIDTH_SPRITES / 2) - (longest_length / 2) - 1;
 
     if (is_selected)
     {
       draw_sprite(game->graphics, game->menu->selector, x - 2, y);
     }
 
-    draw_text(game, x, y, row_length, menu_item->text);
+    draw_text(game, x, y, longest_length, menu_item->text);
   }
 }
 

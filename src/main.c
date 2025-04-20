@@ -177,6 +177,11 @@ int save_game(Game *game)
   ForegroundDataHeader data;
   SaveHeader header;
 
+  if (game->player == NULL || game->level == NULL)
+  {
+    return 1;
+  }
+
   create_directories(saveFilename);
 
   file = fopen(saveFilename, "wb");
@@ -187,10 +192,6 @@ int save_game(Game *game)
     return -1;
   }
 
-  if (game->player == NULL)
-  {
-    return 1;
-  }
 
   header.playerWorldX = game->player->worldX;
   header.playerWorldY = game->player->worldY;
@@ -425,7 +426,6 @@ int main()
   if (save_game(game) == -1)
   {
     fprintf(stderr, "Error: Something went wrong while saving the game\n");
-    return 1;
   }
   cleanup_game(game);
 

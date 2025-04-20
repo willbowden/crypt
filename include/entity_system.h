@@ -26,7 +26,6 @@ typedef struct Enemy {
     int health;
     int attack;
     int defense;
-    SpecialAbility ability;
     int worldX;
     int worldY;
     int hasMoved;  
