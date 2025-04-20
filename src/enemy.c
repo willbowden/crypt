@@ -94,6 +94,14 @@ void enemy_turn(Game *game) {
                         dmg = raw - game->player->defense;
                         if (dmg < 1) dmg = 1;
                         game->player->health -= dmg;
+                        add_animation(
+                            game->graphics, 
+                            &game->player->worldX,
+                            &game->player->worldY,
+                            game->player->sprite,
+                            GAME_FPS / 4,
+                            &flashing_red_animation
+                        );  
                         if (game->player->health <= 0) {
                             setup_game_over_menu(game->menu);
                             game->state = MENU_OPEN;
