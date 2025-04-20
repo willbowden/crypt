@@ -68,6 +68,7 @@ void move_player(Game *game, SDL_KeyCode key)
       set_player_pos(game, newX, newY);
       game->state = ENEMY_TURN;
     }
+    /* Process player walking onto an interactable */
     else if (game->level->foreground[newY][newX]->type == INTERACTABLE)
     {
       Interactable *interactable = (Interactable *)game->level->foreground[newY][newX];

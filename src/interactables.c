@@ -60,25 +60,35 @@ void complete_level_3(Game *g)
 
 void complete_level_4(Game *g)
 {
-  g->level = load_level(5, 0);
-  set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
-  spawn_random_enemies(g, GHOST, 5);
-  spawn_random_enemies(g, SPIDER, 5);
-  spawn_random_enemies(g, MAGE, 3);
+  if (g->level->enemyCount != 0)
+  {
+    show_popup(g, "Don't leave any foes behind!");
+  }
+  else
+  {
+    g->level = load_level(5, 0);
+    set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES - 1);
+    spawn_random_enemies(g, GHOST, 5);
+    spawn_random_enemies(g, SPIDER, 5);
+    spawn_random_enemies(g, MAGE, 3);
+  }
 }
 
-/* void complete_level_5(Game *g)
-// {
-//   g->level = load_level(3, 0);
-//   set_player_pos(g, WORLD_WIDTH_SPRITES / 2, WORLD_HEIGHT_SPRITES-1);
-// } */
+void complete_game(Game *g, int x, int y)
+{
+  if (g->level->enemyCount != 0)
+  {
+    show_popup(g, "Don't leave any foes behind!");
+  }
+  else
+  {
+    setup_game_win_menu(g->menu);
+    g->state = MENU_OPEN;
+  }
+}
 
 void progress_level(Game *g, int x, int y)
 {
-  /**
-   * Depending on the current level, progression
-   *  will have different preconditions
-   */
   switch (g->level->levelNumber)
   {
   case 1:
@@ -100,7 +110,7 @@ void progress_level(Game *g, int x, int y)
 
 void pickup_weapon(Game *g, int x, int y)
 {
-  
+
   Sprite *old_sprite;
   g->player->attack += 5;
   g->level->levelState.flags |= 1;

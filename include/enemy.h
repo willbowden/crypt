@@ -15,28 +15,9 @@ typedef enum {
 struct Enemy;  /* Forward declaration; full definition comes from entity_system.h */
 struct Game;
 
-typedef enum {
-    ABILITY_NONE,
-    ABILITY_TANK,
-    ABILITY_INVISIBILITY,
-    ABILITY_TELEPORTATION,
-    ABILITY_SHARPNESS,
-    ABILITY_POISON,
-    ABILITY_FIREBALL
-} AbilityType;
-
-/* Function pointer for executing the special ability */
-typedef void (*AbilityFunction) (struct Enemy *enemy, struct Game *game);
-
-typedef struct {
-    AbilityType type;
-    AbilityFunction execute;
-    int cooldown; /* -1 implies no cooldown */
-} SpecialAbility;
-
 struct Enemy *add_enemy(struct Game *game, int tileNo);
+int compute_next_move(struct Game *game, struct Enemy *enemy, int *nextX, int *nextY);
 void spawn_random_enemies(struct Game *game, EnemyType type, int count);
 void enemy_turn(struct Game *game);
-void template_execution(struct Enemy *enemy, struct Game *game);
 
 #endif /* ENEMY_H */

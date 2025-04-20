@@ -181,13 +181,6 @@ Entity *entity_from_number(int tileNo)
 
   sprite = sprite_from_number(tileNo);
 
-  /**
-   * TODO: Add inequalities to match different tile numbers
-   * to different entity types.
-   *
-   * For now, all tiles are assumed to be ForegroundTiles
-   */
-
   switch (tileNo)
   {
   case LEVEL1_DOOR:
@@ -200,11 +193,17 @@ Entity *entity_from_number(int tileNo)
     return (Entity *)create_interactable(sprite, 1, &pickup_armour);
   case LEVEL3_SWORD:
     return (Entity *)create_interactable(sprite, 1, &pickup_weapon);
+  case WINNING_CROWN:
+    return (Entity *)create_interactable(sprite, 0, &complete_game);
   default:
     return (Entity *)create_foreground_tile(sprite, 0);
   }
 }
 
+/**
+ * Load a level layer from a .csv file of tile numbers
+ * ENTITY_FACTORY is simply a function that converts a tile number into a correspnding entity
+ */
 int load_layer(LEVEL_LAYER layer, char *levelPrefix, char *levelSuffix, ENTITY_FACTORY func)
 {
   char *levelName = (char *)malloc((strlen(levelPrefix) + 15) * sizeof(char));

@@ -2,7 +2,6 @@
 
 struct Enemy *add_enemy(struct Game *game, int tileNo) {
     Enemy *enemy = create_enemy(sprite_from_number(tileNo));
-    SpecialAbility ability = {ABILITY_NONE, NULL, -1};
     if(!enemy) {
         fprintf(stderr, "Failed to create enemy\n");
         return NULL;
@@ -11,45 +10,29 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
     switch (tileNo)
     {
     case MAGE:
-        ability.type = ABILITY_FIREBALL;
-        ability.execute = template_execution;
-        ability.cooldown = 2;
         enemy->enemy_type = MAGE;
         enemy->health = 30;
         enemy->attack = 30;
-        enemy->ability = ability;
         break;
     case SPIDER:
-        ability.type = ABILITY_POISON;
-        ability.execute = template_execution;
-        ability.cooldown = 2;
         enemy->enemy_type = SPIDER;
         enemy->health = 15;
         enemy->attack = 10; /* Implement poison damage for 2 turns */
-        enemy->ability = ability;
         break;
     case GHOST:
-        ability.type = ABILITY_TELEPORTATION;
-        ability.execute = template_execution;
-        ability.cooldown = 3;
         enemy->enemy_type = GHOST;
         enemy->health = 15;
         enemy->attack = 15;
-        enemy->ability = ability;
         break;
     case GOBLIN:
-        ability.type = ABILITY_SHARPNESS;
-        ability.execute = template_execution;
         enemy->enemy_type = GOBLIN;
         enemy->health = 10;
         enemy->attack = 20;
-        enemy->ability = ability;
         break;
     case GOON:
         enemy->enemy_type = GOON;
         enemy->health = 10;
         enemy->attack = 10;
-        enemy->ability = ability;
         break;
     default:
         fprintf(stderr, "%s\n", "Incorrect tileNo provided for enemy creation");
@@ -58,6 +41,47 @@ struct Enemy *add_enemy(struct Game *game, int tileNo) {
     }
 
     return enemy;
+}
+
+int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY)
+{
+  int gridW = WORLD_WIDTH_SPRITES;
+  int gridH = WORLD_HEIGHT_SPRITES;
+  int bestDist = 9999;
+  int chosenX = enemy->worldX;
+  int chosenY = enemy->worldY;
+  int dx[4] = {0, 1, 0, -1};
+  int dy[4] = {1, 0, -1, 0};
+  int i;
+  int dist;
+
+  for (i = 0; i < 4; i++)
+  {
+    int nx = enemy->worldX + dx[i];
+    int ny = enemy->worldY + dy[i];
+    if (nx < 0 || nx >= gridW || ny < 0 || ny >= gridH)
+      continue;
+    /* Allow movement if the cell is empty or occupied by the player */
+    if (game->level->foreground[ny][nx] != NULL &&
+        game->level->foreground[ny][nx]->type != PLAYER)
+      continue;
+    /* Compute Manhattan distance from candidate cell to player's position */
+    dist = abs(game->player->worldX - nx) + abs(game->player->worldY - ny);
+    if (dist < bestDist)
+    {
+      bestDist = dist;
+      chosenX = nx;
+      chosenY = ny;
+    }
+  }
+
+  /* If no neighbor found (should not happen in normal gameplay), return 0 */
+  if (chosenX == enemy->worldX && chosenY == enemy->worldY)
+    return 0;
+
+  *nextX = chosenX;
+  *nextY = chosenY;
+  return 1;
 }
 
 void spawn_random_enemies(Game *game, EnemyType type, int count) {
@@ -111,6 +135,14 @@ void enemy_turn(Game *game) {
                         dmg = raw - game->player->defense;
                         if (dmg < 1) dmg = 1;
                         game->player->health -= dmg;
+                        add_animation(
+                            game->graphics, 
+                            &game->player->worldX,
+                            &game->player->worldY,
+                            game->player->sprite,
+                            GAME_FPS / 4,
+                            &flashing_red_animation
+                        );  
                         if (game->player->health <= 0) {
                             setup_game_over_menu(game->menu);
                             game->state = MENU_OPEN;
@@ -150,10 +182,4 @@ void enemy_turn(Game *game) {
         }
     }
     game->state = PLAYER_TURN;
-}
-
-
-void template_execution(struct Enemy *enemy, struct Game *game) {
-    /* TODO: Not implemented yet, will implement after shortlisting the abilities and enemy types */
-    /* Function to execute the special ability in game */
 }

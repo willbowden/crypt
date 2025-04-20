@@ -69,9 +69,14 @@ Game *initialise_game()
     return NULL;
   }
 
+  game->state = LOADING;
+
   return game;
 }
 
+/**
+ * Create a new game from level 1
+ */
 int new_game(Game *game)
 {
   if (game == NULL)
@@ -105,6 +110,10 @@ int new_game(Game *game)
   return 0;
 }
 
+/**
+ * Load game from save file
+ * Currently a fixed single file
+ */
 int load_game(Game *game)
 {
   char saveFilename[] = "./saves/save1";
@@ -114,6 +123,7 @@ int load_game(Game *game)
   Player *player = (Player *)malloc(sizeof(Player));
   Enemy *enemy;
   FILE *file = fopen(saveFilename, "rb");
+  game->state = LOADING;
 
   if (file == NULL)
   {
@@ -169,6 +179,10 @@ int load_game(Game *game)
   return 0;
 }
 
+/**
+ * Save game to file
+ * Currently a fixed single file
+ */
 int save_game(Game *game)
 {
   char saveFilename[] = "./saves/save1";
@@ -176,6 +190,18 @@ int save_game(Game *game)
   FILE *file;
   ForegroundDataHeader data;
   SaveHeader header;
+  GameState previousState = game->state;
+  game->state = LOADING;
+
+  /**
+   * If there's no game state to save
+   *  (i.e user has opened game but hasn't used main menu),
+   *  cancel the save
+   */
+  if (game->player == NULL || game->level == NULL)
+  {
+    return 1;
+  }
 
   create_directories(saveFilename);
 
@@ -187,10 +213,6 @@ int save_game(Game *game)
     return -1;
   }
 
-  if (game->player == NULL)
-  {
-    return 1;
-  }
 
   header.playerWorldX = game->player->worldX;
   header.playerWorldY = game->player->worldY;
@@ -239,6 +261,8 @@ int save_game(Game *game)
     }
   }
   fclose(file);
+
+  game->state = previousState;
   return 0;
 }
 
@@ -305,6 +329,9 @@ void handle_keypress(Game *game, SDL_Event *e)
   }
 }
 
+/**
+ * Main game loop with fixed-FPS rendering and input handling
+ */
 void run_game(Game *game)
 {
   int running = 1;
@@ -366,47 +393,6 @@ void run_game(Game *game)
   }
 }
 
-int compute_next_move(Game *game, Enemy *enemy, int *nextX, int *nextY)
-{
-  int gridW = WORLD_WIDTH_SPRITES;
-  int gridH = WORLD_HEIGHT_SPRITES;
-  int bestDist = 9999;
-  int chosenX = enemy->worldX;
-  int chosenY = enemy->worldY;
-  int dx[4] = {0, 1, 0, -1};
-  int dy[4] = {1, 0, -1, 0};
-  int i;
-  int dist;
-
-  for (i = 0; i < 4; i++)
-  {
-    int nx = enemy->worldX + dx[i];
-    int ny = enemy->worldY + dy[i];
-    if (nx < 0 || nx >= gridW || ny < 0 || ny >= gridH)
-      continue;
-    /* Allow movement if the cell is empty or occupied by the player */
-    if (game->level->foreground[ny][nx] != NULL &&
-        game->level->foreground[ny][nx]->type != PLAYER)
-      continue;
-    /* Compute Manhattan distance from candidate cell to player's position */
-    dist = abs(game->player->worldX - nx) + abs(game->player->worldY - ny);
-    if (dist < bestDist)
-    {
-      bestDist = dist;
-      chosenX = nx;
-      chosenY = ny;
-    }
-  }
-
-  /* If no neighbor found (should not happen in normal gameplay), return 0 */
-  if (chosenX == enemy->worldX && chosenY == enemy->worldY)
-    return 0;
-
-  *nextX = chosenX;
-  *nextY = chosenY;
-  return 1;
-}
-
 /* Saving on quit and saving periodically between turns */
 int main()
 {
@@ -425,7 +411,6 @@ int main()
   if (save_game(game) == -1)
   {
     fprintf(stderr, "Error: Something went wrong while saving the game\n");
-    return 1;
   }
   cleanup_game(game);
 

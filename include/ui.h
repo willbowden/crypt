@@ -27,6 +27,7 @@ typedef struct Menu {
   int selected_item;
 } Menu;
 
+void setup_game_win_menu(Menu *menu);
 void show_popup(struct Game *game, char *message);
 void dismiss_popup(struct Game *game);
 void draw_dialog(struct Game *game);
