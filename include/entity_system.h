@@ -1,6 +1,10 @@
 #ifndef ENTITY_SYSTEM_H
 #define ENTITY_SYSTEM_H
 
+#define MAX_DEFENSE 30
+#define MAX_ATTACK 30
+#define MAX_HEALTH 100
+
 struct Game;
 
 typedef enum {

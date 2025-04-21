@@ -15,6 +15,7 @@
 #define GAME_FPS 60
 #define PATH_SEPARATOR '/'
 #define SAVE_INTERVAL 15
+#define CRYPT_SAVE_MAGIC 0x43525054 
 
 typedef enum GameState {
   LOADING,
@@ -45,6 +46,7 @@ typedef struct {
   int levelNumber;
   LevelState levelState;
   int numEntities;
+  uint32_t magic_number;
 } SaveHeader;
 
 typedef struct {
